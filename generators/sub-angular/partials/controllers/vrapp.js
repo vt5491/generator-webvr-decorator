@@ -1,0 +1,3 @@
+<%= mainService %>.init();
+<%= mainService %>.mainLoop();
+
