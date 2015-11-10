@@ -541,6 +541,18 @@ module.exports = AngVrBase.extend({
     //common.copyUserLibDir(srcDir, destDir, this);
     this.copyUserLibDir(srcDir, destDir, this);
 
+    // copy standard files
+    //app: function () {
+      this.fs.copy(
+        this.templatePath('main.html'),
+        this.destinationPath('app/views/main.html')
+      );
+      // this.fs.copy(
+      //   this.templatePath('_bower.json'),
+      //   this.destinationPath('bower.json')
+      // );
+    //};
+    
   },
   
   // install: function () {

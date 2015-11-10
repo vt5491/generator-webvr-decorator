@@ -15,6 +15,8 @@ var generators = require('yeoman-generator').generators;
 var os = require('os');
 var common = require('../lib/common.js');
 
+var common_ut = require('./test-lib-common.js');
+
 // describe('angular-vr-base:app', function () {
 //   before(function (done) {
 //     helpers.run(path.join(__dirname, '../generators/app'))
@@ -46,7 +48,7 @@ describe('angular-vr-base:app end to end', function () {
 //   // mock 'angular-service' since 'vr-base:sub-angular' calls
 //   // on it to create services and such.
    beforeEach(function (done) {
-
+    
 //     // create a mock angular generator
     var angularServiceDummy = generators.Base.extend({
       
@@ -92,9 +94,12 @@ describe('angular-vr-base:app end to end', function () {
       .on('ready', function (gen) {
         //gen.fs.writeJSON(gen.destinationPath('package.json'), this.pkg);
         gen.fs.write('app/scripts/controllers/main.js', '//dummy-line\n  });\n');
+        common_ut.writeDummyIndexHtml(gen);
+        gen.fs.write('app/views/main.html', '//dummy-line\n  });\n');
       }.bind(this))     
       .on('end', done);
 
+     
 
   });
 
@@ -115,7 +120,27 @@ describe('angular-vr-base:app end to end', function () {
     ]);
 
   });
-  
+
+  it('updates main.html in views', function () {
+    console.log('ut: now in updates main.html');
+    assert.file([
+      'app/views/main.html',
+    ]);
+
+    //console.log('ut: this.angVrBaseAppRunContext=', this.angVrBaseAppRunContext);
+
+    var gen = this.angVrBaseAppRunContext.generator;
+    
+    var filePath = gen.destinationPath('app/views/main.html');
+    
+    var fileContents = gen.fs.read(filePath);
+
+    console.log('view/main.html: fileContents=' + fileContents);
+    var regex = /<canvas id=\"viewer\"/m;
+
+    assert(regex.test(fileContents));
+    
+  });
 });
 
 // this will test individual methods, or sub-workflows.

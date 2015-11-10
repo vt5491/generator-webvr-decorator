@@ -37,7 +37,7 @@
 
        // this controls the ambient background color e.g of the the "sky"
        //this.renderer.setClearColor(0x131313, 1.0);
-       this.renderer.setClearColor(0x531343, 1.0);
+       this.renderer.setClearColor(0x431353, 1.0);
        this.renderer.setSize(this.width, this.height);
 
        this.container = document.getElementById('container');

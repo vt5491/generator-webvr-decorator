@@ -16,6 +16,25 @@ var common = require('../lib/common.js');
 var fs_node = require('fs');
 var async = require('async');
 
+// helper test methods
+// these may be called by unit tests for modules that mixin in the common lib
+var  _writeDummyIndexHtml = function (gen) {
+  console.log('now in writeDummyIndexHtml');
+  var dummyHtml = '<!doctype html>\n' +
+        '<html class="no-js">\n' +
+        '<head>\n' +
+        '</head>\n' +
+        '<body ng-app="yoAngularVirginApp">\n' +
+        '<!-- endbower -->\n' +
+        '<!-- endbuild -->\n' +
+        '</body>\n' +
+        '</html>\n';
+  
+  gen.fs.write(gen.destinationPath('app/index.html'), dummyHtml);
+};
+
+exports.writeDummyIndexHtml = _writeDummyIndexHtml;
+
 describe('common lib', function () {
 
   // We test the common mixin class by mixing into various generators.
@@ -69,7 +88,9 @@ describe('common lib', function () {
       '</body>\n' +
       '</html>\n';
     
-    SAGen.fs.write(SAGen.destinationPath('app/index.html'), dummyHtml);
+    //SAGen.fs.write(SAGen.destinationPath('app/index.html'), dummyHtml);
+
+    _writeDummyIndexHtml(SAGen);
     
     done();
   });
