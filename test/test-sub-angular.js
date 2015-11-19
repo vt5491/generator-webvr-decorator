@@ -171,7 +171,7 @@ describe('angular-vr-base:individual methods', function () {
     //   null,
     //  {'artifacts': artifacts}
     // );
-    subAngularGenerator = helpers.createGenerator('vr-decorator:sub-angular', [
+    subAngularGenerator = helpers.createGenerator('webvr-decorator:sub-angular', [
      // '../../generators/app',
       path.join(__dirname, '../generators/sub-angular')
       ],

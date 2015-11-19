@@ -1,5 +1,5 @@
 // 
-// generator-vr-decorator
+// generator-webvr-decorator
 //  created 2015-11-03
 //
 // Add VR capability to a variety of base apps, for example 'angular' and 'webapp'
@@ -10,6 +10,9 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
+var jsonfile = require('jsonfile');
+var util = require('util');
+var merge = require('merge'), original, cloned;
 
 module.exports = yeoman.generators.Base.extend({
   prompting: function () {
@@ -77,7 +80,38 @@ module.exports = yeoman.generators.Base.extend({
     }
     this.log('base.default: done installing sub-angular');
   },
-  
+
+  writing: function () {
+    //var file = '/tmp/data.json'
+    console.log('now in app:writing');
+
+    var srcJson = jsonfile.readFileSync(this.templatePath('_bower.json'));
+
+    console.log('app: srcJson=',srcJson);
+    console.log('app: srcJson.dependencies=',srcJson.dependencies);
+    //console.log('app: srcJson.dependencies.length=',srcJson.dependencies.length);
+
+    var tgtJson = jsonfile.readFileSync(this.destinationPath('bower.json'));
+
+    console.log('app: tgtJson=',tgtJson);
+    console.log('app: tgtJson.dependencies=',tgtJson.dependencies);
+
+    // Try to create idempotency, by not re-adding if there signs we've been
+    // here before.
+    if(! tgtJson.dependencies['webvr-boilerplate']) {
+      console.log('app: about to merge');
+      var mergedDependencies = merge(tgtJson.dependencies, srcJson.dependencies);
+      
+      console.log('\n\napp: mergedDependencies=', mergedDependencies);
+
+      tgtJson.dependencies = mergedDependencies;
+
+      jsonfile.writeFileSync(this.destinationPath('bower.json'), tgtJson, {spaces: 2});
+      console.log('\nwrote new file');
+
+    }
+    
+  }
   // writing: {
   //   app: function () {
   //     this.fs.copy(

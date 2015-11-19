@@ -81,7 +81,13 @@
         this.xyProjectionPlane.position.set(0, 1, -8);
         
         scene.add(this.xyProjectionPlane);
-        
+
+        geometry = new THREE.BoxGeometry(25, 25, 25);
+        material = new THREE.MeshNormalMaterial();
+        this.cube = new THREE.Mesh(geometry, material);
+
+        scene.add(this.cube);
+
       };
 
     factory.init = function() {
@@ -101,14 +107,16 @@
      // this.xyProjectionPlane.geometry.applyMatrix(mat);
      this.xyProjectionPlane.quaternion.multiply(this.quat);
 
-     if (this.vrManager.isVRMode()) {
-       this.effect.render(scene, this.camera);
-       //console.log("patha");
-     }
-     else {
-       this.renderer.render(scene, this.camera);
-       //console.log("pathb");
-     }
+//     if (this.vrManager.isVRMode()) {
+//       this.effect.render(scene, this.camera);
+//       //console.log("patha");
+//     }
+//     else {
+//       this.renderer.render(scene, this.camera);
+//       //console.log("pathb");
+//     }
+     this.camera.position.z = 100;
+     this.vrManager.render(scene, this.camera);
 
    };
       

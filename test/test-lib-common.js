@@ -60,7 +60,7 @@ describe('common lib', function () {
 
     // artifacts.controllers.main = 'main';
       
-    subAngularGenerator = helpers.createGenerator('vr-decorator:sub-angular', [
+    subAngularGenerator = helpers.createGenerator('webvr-decorator:sub-angular', [
       path.join(__dirname, '../generators/sub-angular')
       ],
       null,
@@ -149,10 +149,10 @@ describe('common lib', function () {
     console.log('ut.registerLibsHtml: result=' + result);
 
     // make sure the libs are deliminted
-    regex = /<!-- vr-decorator lib add -->/m;
+    regex = /<!-- webvr-decorator lib add -->/m;
     assert(regex.test(result));
 
-    regex = /<!-- vr-decorator lib end -->/m;
+    regex = /<!-- webvr-decorator lib end -->/m;
     assert(regex.test(result));
 
     // make sure the libs are there
@@ -258,7 +258,7 @@ describe('common lib', function () {
 
     //assert.equal(result, 7);
     console.log('ut.doIt2: result=' + result);
-    assert.equal(result, 'generator-vr-decorator');
+    assert.equal(result, 'generator-webvr-decorator');
   });
 
   it('doIt works', function () {

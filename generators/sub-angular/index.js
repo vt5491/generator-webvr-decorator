@@ -1,5 +1,5 @@
 // 
-// vr-decorator:sub-angular generator
+// webvr-decorator:sub-angular generator
 //  created 2015-11-02
 //
 
@@ -86,6 +86,7 @@ module.exports = AngVrBase.extend({
 
     //TODO: make this customizable e.g via options
     this.skipInstall = true;
+    //this.skipInstall = false;
 
     //this.fileUpdatedTag = '//file last updated on: ';
   },
@@ -474,6 +475,11 @@ module.exports = AngVrBase.extend({
         });
       }.bind(this),
       function updateHtml(libArray, callback) {
+        // add in some static libs that are defined elsewhere
+        libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
+        libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
+        //libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
+        
         console.log('b: libArray=', libArray);
         var htmlPath = this.destinationPath('app/index.html');
         this.registerLibsHtml(htmlPath, libArray);
