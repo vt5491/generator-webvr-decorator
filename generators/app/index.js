@@ -15,10 +15,24 @@ var util = require('util');
 var merge = require('merge'), original, cloned;
 
 module.exports = yeoman.generators.Base.extend({
+
+  constructor: function () {
+    yeoman.generators.Base.apply(this, arguments);
+
+    // // This makes `appname` a required argument.
+    // this.argument('appname', { type: String, required: true });
+    // // And you can then access it later on this way; e.g. CamelCased
+    // this.appname = _.camelCase(this.appname);
+    this.option('skipInstall');
+  },
+  
   initializing: function() {
     this.props = {};
     this.props.skipInstall = true;
     //this.props.skipInstall = false;
+    this.props.skipInstall = (this.options.skipInstall ? true : false);
+
+    console.log('this.props.skipInstall=', this.props.skipInstall );
   },
   
   prompting: function () {

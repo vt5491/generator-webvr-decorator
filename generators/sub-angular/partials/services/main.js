@@ -56,6 +56,7 @@
         this.camera = new THREE.PerspectiveCamera( 75, this.width / this.height, 1, 10000);
 
         this.camera.position.copy(this.BasePosition);
+        this.camera.position.z = 100;
         this.camera.quaternion.copy(this.BaseRotation);
 
         this.camera.quaternion.copy( this.BaseRotation);
