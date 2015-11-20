@@ -85,7 +85,8 @@ module.exports = AngVrBase.extend({
     this.artifacts.directives.canvasKeys = this.defaultArtifactNames.canvasKeysDirective;
 
     //TODO: make this customizable e.g via options
-    this.skipInstall = true;
+    //this.skipInstall = true;
+    this.skipInstall = this.options.skipInstall;
     //this.skipInstall = false;
 
     //this.fileUpdatedTag = '//file last updated on: ';
@@ -111,7 +112,7 @@ module.exports = AngVrBase.extend({
     // loop over each line looking for our insert point
     var lines = _.map(fileContents.split('\n'));
 
-    console.log('lines=', lines);
+    //console.log('lines=', lines);
     var matchedLine;
 
     var matchedLineNum = 0;
@@ -155,7 +156,18 @@ module.exports = AngVrBase.extend({
         dependenciesStr = match[1];
         
         for(var i =0; i < dependencies.length; i++) {
-          dependenciesStr += (', ' + dependencies[i]) ;
+          // only add the dependcy if it's not already in there.  This should give
+          // us idempotency, and and enable the generator to be run multiple times without
+          // inserting the dependcy multiple times
+          var regex = new RegExp('function\\s*\\(.*,\\s*' + dependencies[i] + '.*\\)');
+
+          if(!regex.test(matchedLine)) {
+            dependenciesStr += (', ' + dependencies[i]) ;
+          }
+          else {
+            console.log('Will not inject dependency ' + dependencies[i] + ' because its already present');
+          }
+          
         };
 
         // remove leading comma if any
@@ -325,7 +337,7 @@ module.exports = AngVrBase.extend({
     var fileContents = this.fs.read(filePath);
 
     //console.log('_markupFile: fileContents=' + fileContents);
-    this.conflicter.force = true;
+    //vt-xthis.conflicter.force = true;
 
     // if this is the 'main' controller and we've already updated it, don't
     // add a '<%= partial %>' tag, as this will just create repeats
@@ -475,7 +487,7 @@ module.exports = AngVrBase.extend({
         });
       }.bind(this),
       function updateHtml(libArray, callback) {
-        // add in some static libs that are defined elsewhere
+        // add in some static libs that are defined elsewhere        
         libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
         libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
         //libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
@@ -576,11 +588,11 @@ module.exports = AngVrBase.extend({
     // parent installDependencies() to install.  But there's a lot of use cases between
     // people who are installing over a previous angular, and those installing angual and
     // the vr-decoorator in swoop, and it's easist to just surgically add them here.
-    if(!this.skipInstall) {
-      this.log('sub-angular.install: now installing three.js');
-      //this.bowerInstall('three.js', ['--save-dev']);
-      this.bowerInstall(['three.js'], { 'save': true });
-    };
+    // if(!this.skipInstall) {
+    //   this.log('sub-angular.install: now installing three.js');
+    //   //this.bowerInstall('three.js', ['--save-dev']);
+    //   this.bowerInstall(['three.js'], { 'save': true });
+    // };
   }
   
   // TODO: you need a way to make sure bower.json and package.json

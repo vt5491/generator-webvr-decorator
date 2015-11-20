@@ -94,7 +94,9 @@ describe('angular-vr-base:app end to end', function () {
       .on('ready', function (gen) {
         //gen.fs.writeJSON(gen.destinationPath('package.json'), this.pkg);
         gen.fs.write('app/scripts/controllers/main.js', '//dummy-line\n  });\n');
-        common_ut.writeDummyIndexHtml(gen);
+        // we need to mock a dummy bower.json
+        gen.fs.write('bower.json', '{"dependencies": {}}');
+        common_ut.writeDummyIndexHtml('', gen);
         gen.fs.write('app/views/main.html', '//dummy-line\n  });\n');
       }.bind(this))     
       .on('end', done);
@@ -149,10 +151,6 @@ describe('angular-vr-base:individual methods', function () {
   var APP_NAME = 'testapp';
   
   beforeEach(function (done) {
-    // helpers.testDirectory(path.join(__dirname, 'temp'), function (err) {
-    //   if (err) {
-    //     return done(err);
-    //   };
 
     var artifacts = {};
       
@@ -172,7 +170,6 @@ describe('angular-vr-base:individual methods', function () {
     //  {'artifacts': artifacts}
     // );
     subAngularGenerator = helpers.createGenerator('webvr-decorator:sub-angular', [
-     // '../../generators/app',
       path.join(__dirname, '../generators/sub-angular')
       ],
       null,
@@ -188,11 +185,6 @@ describe('angular-vr-base:individual methods', function () {
     // override the artifacts hash
     subAngularGenerator.artifacts = artifacts;
 
-    // subAngularGenerator.sourceRoot(path.join(process.cwd(), 'test/temp') );
-    // subAngularGenerator.options.env.cwd = path.join(process.cwd(), 'test/temp');
-
-    //TODO: generalize the file names here.  The user may use something other than the defaults
-    //actually ok, since this is a test and we are controlling this
     subAngularGenerator.fs.write('file.txt', '//dummy-line\n  });\n');
 
     subAngularGenerator.fs.write('app/scripts/services/main.js', '//dummy-line\n  });\n');
@@ -210,17 +202,6 @@ describe('angular-vr-base:individual methods', function () {
     subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/base.js'), '<%= name %>\n');
     
       
-    //console.log('describe:before: subAngularGenerator=', subAngularGenerator);
-//     subAngularGenerator = helpers.createGenerator(
-//       '../../generators/app',
-// //      'vr-base:sub-angular',
-//       [
-//         path.join(__dirname, '../generators/sub-angular')
-//         //'../generators/sub-angular'
-//       ],null, {abc: 7, def: 8, artifacts: artifacts})
-//       //.inTmpDir()
-//       ;
-
     done();
 //   }.bind(this));
   }//.on('end', done)
@@ -279,6 +260,24 @@ describe('angular-vr-base:individual methods', function () {
     //('MainCtrl', function ($scope, service1, service2)
     //var regex = /\('MainCtrl', function \($scope, service1, service2\)/m;
     var regex = /\('MainCtrl', function \(\$scope, service1, service2\)/m;
+
+    //console.log('regex.test=' + regex.test(fileContents));
+    
+    assert(regex.test(fileContents));
+  });
+
+  it('_injectDependencies is idempotent', function () {
+    var fp = 'app/scripts/controllers/dummy.js';
+    
+    // create a new dummy file that already has the 'main' service installed
+    subAngularGenerator.fs.write(fp,
+        "angular.module('vrsketchApp')\n.controller('MainCtrl', function ($scope, main) {\n"    );
+    
+    subAngularGenerator._injectDependencies(fp, 'controller', ['service1', 'main']);
+
+    var fileContents = subAngularGenerator.fs.read(fp);
+    console.log('ut: _injectDependencies: fileContents=', fileContents);
+    var regex = /\('MainCtrl', function \(\$scope, main, service1\)/m;
 
     console.log('regex.test=' + regex.test(fileContents));
     
