@@ -11,14 +11,7 @@ var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
 var helpers = require('yeoman-generator').test;
-//var vrBaseGenerator = require('generator-vr-base');
-//var env = require('yeoman-environment').createEnv();
-//var env = require('yeoman-generator').createEnv();
 var env = require('yeoman-generator')();
-var vtTest = require('../../lib/vttest.js');
-//require('../../lib/vttest.js');
-//var common = require('../../lib/common.js');
-//var env = require('yeoman-generator')();
 var path = require('path');
 var async = require('async');
 
@@ -48,8 +41,7 @@ module.exports = AngVrBase.extend({
     // we will modify it.
     // we should be able to get rid of main controllers once vrAppController is worked out.
     this.defaultArtifactNames.mainController = 'main'; 
-    //this.defaultArtifactNames.vrAppController = this.options.appName || 'vrapp';
-    //console.log('sub-angular._initGlobals: options=', this.options);
+    
     if (typeof this.options !== 'undefined' && typeof this.options.appName !== 'undefined'){
     //  console.log('value=' + this.options.appname);
       this.defaultArtifactNames.vrAppController = this.options.appName;
@@ -61,7 +53,7 @@ module.exports = AngVrBase.extend({
     this.defaultArtifactNames.custController = 'cust';
 
     // directives
-    this.defaultArtifactNames.canvasKeysDirective = 'canvas-keys';
+    this.defaultArtifactNames.canvasKeysDirective = 'canvasKeys';
     
     this.artifacts = {};
     this.artifacts.services = {};
@@ -69,7 +61,6 @@ module.exports = AngVrBase.extend({
     this.artifacts.directives = {};
     
     // initialize service names
-    //this.artifacts.services.mainService = this.defaultArtifactNames.mainService;
     this.artifacts.services.main = this.defaultArtifactNames.mainService;
 
     //this.log('_initGlobals: this.artifacts.services.mainService=' + this.artifacts.services.mainService);
@@ -99,6 +90,141 @@ module.exports = AngVrBase.extend({
 
   // };
 
+  
+  initializing: function () {
+    //console.log('now in angular-vr-base initializing');
+    this._initGlobals();
+
+    // we need to create a partial file that is the same name as the appName.  We
+    // have to dynamically create this at runtime, since we don't know the app name
+    // until the user supplies it via prompts.
+    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
+    var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');
+
+    console.log('initializing: vrAppFilePath=' + vrAppFilePath);
+
+    this.fs.copy(mainFilePath, vrAppFilePath);
+
+  },
+
+  /*
+  prompting: function () {
+    var done = this.async();
+
+    var prompts = [{
+      type: 'confirm',
+      name: 'someOption',
+      message: 'sub-angular: Would you like to enable this option?',
+      default: true
+    }];
+
+    this.prompt(prompts, function (props) {
+      this.props = props;
+      // To access props later use this.props.someOption;
+
+      done();
+    }.bind(this));
+
+  },
+*/
+  createAngularServices: function () {
+    Object.keys(this.artifacts.services).forEach( function (key, index, array) {
+      this.composeWith('angular:service',  {
+        args: [ this.artifacts.services[key] ],
+
+      } );
+      
+    }.bind(this));    
+  },
+
+  createAngularControllers: function () {
+    Object.keys(this.artifacts.controllers).forEach( function (key, index, array) {
+      console.log('subgeneratorControllers:  key= ' + key);
+      // the 'main' controller is already pre-defined in a standard angular app.  Thus
+      // we want to skip creating this controller anew.
+      if( key === 'main') {
+        return;
+      };
+      
+      this.composeWith('angular:controller',  {args: [ this.artifacts.controllers[key] ]} );
+      
+    }.bind(this));    
+  },
+
+  createAngularDirectives: function () {
+    // console.log('subgeneratorServices: entered');
+    // console.log('subgeneratorServices: this.args=' + this.args);
+    // console.log('subgeneratorServices:  services.main= ' + this.artifacts.services.main);
+    //directiveLoop:
+    Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
+      console.log('subgeneratorDirectives:  key= ' + key);
+      console.log('subgeneratorDirectives: this.artifacts.directives[key]=', this.artifacts.directives[key]);
+      // the 'main' directive is already pre-defined in a standard angular app.  Thus
+      // we want to skip creating this directive anew.
+      // if( key === 'main') {
+      //   //continue directiveLoop;
+      //   return;
+      // };
+      
+      this.composeWith('angular:directive',  {args: [ this.artifacts.directives[key] ]} );
+      
+    }.bind(this));    
+  },
+  
+  // helper method
+  _markupFile: function (filePath) {
+ // _injectTemplate: function (filePath) {
+    var fileContents = this.fs.read(filePath);
+
+    // if this is the 'main' controller and we've already updated it, don't
+    // add a '<%= partial %>' tag, as this will just create repeats
+    if (/controllers\/main.js/.test(filePath))
+    {
+      // the updated at tag indicates if we've touched this controller before
+      //var fileContents = this.fs.read(filePath);
+
+      var tagRegex = new RegExp('^\/\/' + '\\s*' + this.globals.fileUpdatedTag, 'm');
+
+      if (tagRegex.test(fileContents)) {
+        // found tag, return without doing anything
+        return;
+      };
+    };
+    
+    // loop over each line looking for our insert point
+    var lines = _.map(fileContents.split('\n'));
+
+    var accumulateLines = function(str) {
+      var result = '';
+
+      // look for closing bracket, and insert our tag before this
+      if (/^\s\s\}\);/.test(str)) {
+        result +=  '<%= partial %>' + '\n';   
+      }
+      result += str + '\n';
+
+      return result;
+      
+    };
+
+    // convert file string into an array of lines (including tagged line)
+    var taggedLines = _.map(lines, accumulateLines);
+
+    // convert the array back into a string so we can rewrite to the file
+    //fileContents = null;
+    fileContents = '';
+
+    var strAccumulate = function(str) {
+      //fileContents += (str + '\n');
+      fileContents += str;
+    };
+
+    _.map(taggedLines, strAccumulate);
+
+    // and write it back
+    this.fs.write(filePath, fileContents);
+  },
+
   // parse the angular dependency line and inject new dependencies
   // example line:
   //'.controller('MainCtrl', function ($scope) {'
@@ -118,12 +244,7 @@ module.exports = AngVrBase.extend({
     var matchedLineNum = 0;
     
     var findDependencyLine = function(line) {
-      //var regex = new RegExp('\.' + angArtifactType + '\(.*function\s*\(');
       var regex = new RegExp('\\.' + angArtifactType + '\\(.*function\\s*\\(');
-      //var regex = /\.controller\(.*function\s*\(/;
-      //console.log('line=' + line);
-
-      //console.log('regex.test(line)=' + regex.test(line));
       
       if (regex.test(line)){
         matchedLine = line;
@@ -141,12 +262,8 @@ module.exports = AngVrBase.extend({
     this.log('_injectDependencies: matchedLine=' + matchedLine);
     
     if (typeof matchedLine !== 'undefined') {
-      // line has been found, now lets inject our stuff
-      //var regex = new RegExp('\.' + angArtifactType + '\(.*function\s*\(');
       var regex = /function\s*\((.*)\)/;
       var match = regex.exec(matchedLine);
-      //alert(match[1]);  // abc
-      
 
       var dependenciesStr = '';
       
@@ -200,194 +317,6 @@ module.exports = AngVrBase.extend({
     };
   },
   
-  initializing: function () {
-    console.log('now in angular-vr-base initializing');
-    // console.log('intitializing.this=', this);
-    // console.log('->this.config.name=',this.config.name);
-    //console.log('subangular.initialzing: this.options=', this.options);
-
-    // get a vr-base generator object, so we can call call utility methods on it
-//     this.vrBaseGen = helpers.createGenerator('vr-base:app', [      
-// //      path.join(__dirname, '../generators/app')
-//       ],
-//       null,
-//      {}
-//     );
-    //this.vrBaseGen = yeoman.
-    //this.vrBaseGen = yeoman.create(vrBaseGenerator);
-
-    // var tmpVrBaseGen;
-
-    // var result = env.lookup();
-    // console.log('result=', result);
-    
-    // env.lookup(function() {
-    //   //this.vrBaseGen = env.create('generator-vr-base');
-    //   tmpVrBaseGen = env.create('vr-base:app');
-    //   //vrBaseGen = yeoman.create('vr-base:app');
-    // });
-
-    // this.vrBaseGen = tmpVrBaseGen;
-
-    // console.log('this.vrBaseGen=', this.vrBaseGen);
-    //console.log('vrBaseGen.abc()=', this.vrBaseGen.abc());
-    //var my
-    //var xyz = new vtTest();
-    //console.log('vtTest.abc=' + vtTest.abc());
-    //console.log('vtTest.def=' + vtTest.def());
-    
-    this._initGlobals();
-
-    //common.doIt(this,'');
-    //common.copyUserLibModules('file.txt', this);
-    //console.log('subangular.initialzing: artifacts.controllers.vrapp', this.artifacts.controllers.vrapp);
-    // we need to create a partial file that is the same name as the appName.  We
-    // have to dynamically create this at runtime, since we don't know the app name
-    // until the user supplies it via prompts.
-    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
-    var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');
-
-    console.log('initializing: vrAppFilePath=' + vrAppFilePath);
-
-    this.fs.copy(mainFilePath, vrAppFilePath);
-
-    // mixin the common module
-    //_.extend(Base.prototype, require('./actions/actions'));
-    //_.extend(AngVrBase.prototype, require('../../lib/common.js'));
-
-    
-    // console.log('this.doIt2=' + this.doIt2());
-    // console.log('this.getFileListSync=', this.getFileListSync('.'));
-    // console.log('common.globals.fileUpdatedTag=' + this.globals.fileUpdatedTag);
-    //this.log('initializing: this.options=', this.options);
-    //debugger;
-    //this.log('initliazing: artifacts in options:' + ('artifacts' in this.options));
-    //this.log('initializing: this.options.artifacts=', this.options.artifacts);
-    // allow the user to override artifacts (useful for unit testing)
-    // if ( 'artifacts' in this.options) {
-    //   this.artifacts = this.options.artifacts;
-    //   this.log('initializing: this.artifacts=',this.artifacts);
-    // }
-  },
-  
-  prompting: function () {
-    var done = this.async();
-
-    // // Have Yeoman greet the user.
-    // this.log(yosay(
-    //   'Welcome to the super ' + chalk.red('AngularVrBase') + ' generator!'
-    // ));
-
-    var prompts = [{
-      type: 'confirm',
-      name: 'someOption',
-      message: 'sub-angular: Would you like to enable this option?',
-      default: true
-    }];
-
-    this.prompt(prompts, function (props) {
-      this.props = props;
-      // To access props later use this.props.someOption;
-
-      done();
-    }.bind(this));
-
-//    if (!this.angularAppFound) {
-//      var done = this.async();
-
-//    };
-  },
-
-  createAngularServices: function () {
-    // console.log('subgeneratorServices: entered');
-    // console.log('subgeneratorServices: this.args=' + this.args);
-    // console.log('subgeneratorServices:  services.main= ' + this.artifacts.services.main);
-    Object.keys(this.artifacts.services).forEach( function (key, index, array) {
-      //console.log('subgeneratorServices:  key= ' + key);
-      this.composeWith('angular:service',  {
-        args: [ this.artifacts.services[key] ],
-
-      } );
-      
-    }.bind(this));    
-  },
-
-  createAngularControllers: function () {
-    // console.log('subgeneratorServices: entered');
-    // console.log('subgeneratorServices: this.args=' + this.args);
-    // console.log('subgeneratorServices:  services.main= ' + this.artifacts.services.main);
-    //controllerLoop:
-    Object.keys(this.artifacts.controllers).forEach( function (key, index, array) {
-      console.log('subgeneratorControllers:  key= ' + key);
-      // the 'main' controller is already pre-defined in a standard angular app.  Thus
-      // we want to skip creating this controller anew.
-      if( key === 'main') {
-        //continue controllerLoop;
-        return;
-      };
-      
-      this.composeWith('angular:controller',  {args: [ this.artifacts.controllers[key] ]} );
-      
-    }.bind(this));    
-  },
-  
-  // helper method
-  _markupFile: function (filePath) {
- // _injectTemplate: function (filePath) {
-    var fileContents = this.fs.read(filePath);
-
-    //console.log('_markupFile: fileContents=' + fileContents);
-    //vt-xthis.conflicter.force = true;
-
-    // if this is the 'main' controller and we've already updated it, don't
-    // add a '<%= partial %>' tag, as this will just create repeats
-    if (/controllers\/main.js/.test(filePath))
-    {
-      // the updated at tag indicates if we've touched this controller before
-      //var fileContents = this.fs.read(filePath);
-
-      var tagRegex = new RegExp('^\/\/' + '\\s*' + this.globals.fileUpdatedTag, 'm');
-
-      if (tagRegex.test(fileContents)) {
-        // found tag, return without doing anything
-        return;
-      };
-    };
-    
-    // loop over each line looking for our insert point
-    var lines = _.map(fileContents.split('\n'));
-
-    var accumulateLines = function(str) {
-      var result = '';
-
-      // look for closing bracket, and insert our tag before this
-      if (/^\s\s\}\);/.test(str)) {
-        result +=  '<%= partial %>' + '\n';   
-      }
-      result += str + '\n';
-
-      return result;
-      
-    };
-
-    // convert file string into an array of lines (including tagged line)
-    var taggedLines = _.map(lines, accumulateLines);
-
-    // convert the array back into a string so we can rewrite to the file
-    //fileContents = null;
-    fileContents = '';
-
-    var strAccumulate = function(str) {
-      //fileContents += (str + '\n');
-      fileContents += str;
-    };
-
-    _.map(taggedLines, strAccumulate);
-
-    // and write it back
-    this.fs.write(filePath, fileContents);
-  },
-  
   // insert tags into the base angular artifacts, so we can later inject our custom code
   markupArtifacts: function () {
     // services
@@ -403,6 +332,12 @@ module.exports = AngVrBase.extend({
       this._markupFile(filePath);
     }.bind(this));
 
+    Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
+      var filePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      console.log('markupArtifacts: filePath=' + filePath);
+      this._markupFile(filePath);
+    }.bind(this));
+    
     // // directives
     // Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
     //   var filePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key] ] + '.js');
@@ -414,10 +349,18 @@ module.exports = AngVrBase.extend({
     
     this._injectDependencies(controllerPath, 'controller', [this.artifacts.services.main]);
 
+    // services
     var servicePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services['main'] ] + '.js');
     console.log('markupArtifacts: servicePath=' + servicePath);
     
     this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
+
+    // directives
+    var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'].toLowerCase() ] + '.js');
+    console.log('markupArtifacts: directivePath=' + directivePath);
+    
+    this._injectDependencies(directivePath, 'directive', ['$document', '$rootScope', this.artifacts.services.main, this.artifacts.services.base]);
+    
   },                                                 
     
 //  },                                                 
@@ -472,6 +415,30 @@ module.exports = AngVrBase.extend({
       
     }.bind(this));    
 
+    Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
+      var templatePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      var partialsPath = this.templatePath('../partials/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+
+      //console.log('partialsInjection: tempaltePath=' + templatePath);
+      //console.log('partialsInjection: partialsPath=' + partialsPath);
+      //debugger;
+      var partialContents = this.fs.read(partialsPath);
+
+      var ts = new Date().toLocaleString();
+      //partialContents += '// file generated: ';
+      partialContents += '//' + this.globals.fileUpdatedTag;
+      partialContents += ts;
+
+      //console.log('hello from the ut');
+      //partialContents += '//File generated: ' + new Date().toISOString().toLocaleString().replace(/T/, ' ').replace(/\..+/, '') + '\n';
+      this.fs.copyTpl(
+        templatePath,
+        templatePath,
+        { partial: partialContents}
+      );
+      
+    }.bind(this));
+    
   },
 
   markupHtml: function () {
@@ -487,10 +454,18 @@ module.exports = AngVrBase.extend({
         });
       }.bind(this),
       function updateHtml(libArray, callback) {
-        // add in some static libs that are defined elsewhere        
+        // add in some static libs that are defined elsewhere
+        //vt add
+        // I guess I need to add these manually
+        libArray[libArray.length] = 'bower_components/threejs/build/three.js';
+        libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';
+        //vt end
+        
         libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
         libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
-        //libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
+        //vt add
+        libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
+        //vt end
         
         console.log('b: libArray=', libArray);
         var htmlPath = this.destinationPath('app/index.html');

@@ -10,7 +10,8 @@
     factory.BaseRotation = new THREE.Quaternion();
     factory.BaseRotation.copy(factory.INIT_ROTATION);
 
-    factory.quat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), base.ONE_DEGREE * 0.2 );
+    factory.xyProjectionPlaneQuat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), base.ONE_DEGREE * 0.2 );
+    factory.cubeQuat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), base.ONE_DEGREE * 0.2 );
 
     // these have to be function scope variables because they are set via
     // or need to be accessed from asynchronous callbacks.
@@ -106,7 +107,8 @@
      // var m = new THREE.Matrix4();
      // var mat = m.makeRotationY(base.ONE_DEGREE * 0.2);
      // this.xyProjectionPlane.geometry.applyMatrix(mat);
-     this.xyProjectionPlane.quaternion.multiply(this.quat);
+     this.xyProjectionPlane.quaternion.multiply(this.xyProjectionPlaneQuat);
+     this.cube.quaternion.multiply(this.cubeQuat);
 
 //     if (this.vrManager.isVRMode()) {
 //       this.effect.render(scene, this.camera);

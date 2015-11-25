@@ -171,12 +171,25 @@ module.exports = yeoman.generators.Base.extend({
     // parent installDependencies() to install.  But there's a lot of use cases between
     // people who are installing over a previous angular, and those installing angual and
     // the vr-decoorator in swoop, and it's easist to just surgically add them here.
+    // Note: the official three.js bower lib is 'threejs' (no period).  There *is*
+    // a 'three.js' bower, but it's not the official and does not include other
+    // artifacts like examples.  Thus we want 'threejs' and not 'three.js'.  Even if
+    // they have 'three.js', we need the full 'threejs' install.
+    //if(!(tgtJson.dependencies['threejs'] || tgtJson.dependencies['three.js'])) {
+    
     if(!this.props.skipInstall) {
       // first read the existing bower.json and see what's already installed
       var tgtJson = jsonfile.readFileSync(this.destinationPath('bower.json'));
 
       console.log('app: tgtJson=',tgtJson);
       console.log('app: tgtJson.dependencies=',tgtJson.dependencies);
+      
+      // threejs needs to go first since a lot of other modules are dependent on it.
+      if(!tgtJson.dependencies['threejs']) {
+        this.log('app.install: now installing threejs');
+        
+        this.bowerInstall(['threejs'], { 'save': true });        
+      };      
 
       if(!tgtJson.dependencies['webvr-boilerplate']) {
         this.log('app.install: now installing webvr-boilerplate');
@@ -184,16 +197,6 @@ module.exports = yeoman.generators.Base.extend({
         this.bowerInstall(['webvr-boilerplate'], { 'save': true });        
       };
 
-      // Note: the official three.js bower lib is 'threejs' (no period).  There *is*
-      // a 'three.js' bower, but it's not the official and does not include other
-      // artifacts like examples.  Thus we want 'threejs' and not 'three.js'.  Even if
-      // they have 'three.js', we need the full 'threejs' install.
-      //if(!(tgtJson.dependencies['threejs'] || tgtJson.dependencies['three.js'])) {
-      // if(!tgtJson.dependencies['threejs']) {
-      //   this.log('app.install: now installing threejs');
-        
-      //   this.bowerInstall(['threejs'], { 'save': true });        
-      // };      
     };
   }
   
