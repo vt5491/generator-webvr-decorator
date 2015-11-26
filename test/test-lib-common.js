@@ -18,8 +18,7 @@ var async = require('async');
 
 // helper test methods
 // these may be called by unit tests for modules that mixin in the common lib
-var  _writeDummyIndexHtml = function (str, gen) {
-  console.log('now in writeDummyIndexHtml');
+var  _writeDummyIndexHtml = function (str, gen) {  
   
   var dummyHtml = '<!doctype html>\n' +
         '<html class="no-js">\n' +
@@ -32,7 +31,7 @@ var  _writeDummyIndexHtml = function (str, gen) {
         '</html>\n';
 
   str = str || dummyHtml;
-  //gen.fs.write(gen.destinationPath('app/index.html'), dummyHtml);
+  
   gen.fs.write(gen.destinationPath('app/index.html'), str);
 };
 
@@ -49,8 +48,6 @@ describe('common lib', function () {
   var SAGen; 
   
   beforeEach(function (done) {
-    console.log('test-lib-common: now in beforeEach');
-      
     subAngularGenerator = helpers.createGenerator('webvr-decorator:sub-angular', [
       path.join(__dirname, '../generators/sub-angular')
       ],
@@ -64,11 +61,6 @@ describe('common lib', function () {
 
     subAngularGenerator.fs.write('file.txt', '//dummy-line\n  });\n');
 
-    // var srcRoot = subAngularGenerator.sourceRoot();
-    // //var srcRoot = subAngularGenerator.templatePath();
-    
-    // subAngularGenerator.fs.write(path.join(srcRoot, 'generators/common/lib/VRControls.js'), '//dummy VRControls.js\n  });\n');
-    // subAngularGenerator.fs.write(path.join(srcRoot, 'generators/common/lib/VREffect.js'), '//dummy VREffect.js\n  });\n');
     var dummyHtml = '<!doctype html>\n' +
       '<html class="no-js">\n' +
       '<head>\n' +
@@ -78,55 +70,11 @@ describe('common lib', function () {
       '<!-- endbuild -->\n' +
       '</body>\n' +
       '</html>\n';
-    
-    //SAGen.fs.write(SAGen.destinationPath('app/index.html'), dummyHtml);
-
+        
     _writeDummyIndexHtml(dummyHtml, SAGen);
 
-    // put some dummy files in common/lib
-    // SAGen.fs.write(SAGen.templatePath('../../common/lib/') + 'VRControls.js', 'dummy');
-    // SAGen.fs.write(SAGen.templatePath('../../common/lib/') + 'VREffect.js', 'dummy');
-
-    // console.log('dummy file=' + '../../common/lib/'  + 'VRControls.js');
     done();
   });
-
-  // it('copyUserLibDir works', function () {    
-  //   //var srcPath = subAngularGenerator.destinationPath('generators/common/lib/VRControls.js');
-  //   var srcDir, destDir, fileContents;
-    
-  //   //srcDir = subAngularGenerator.destinationPath('generators/common/lib/');
-  //   console.log('sourceRoot (a)= ' + subAngularGenerator.sourceRoot());
-  //   //srcDir = path.join(subAngularGenerator.sourceRoot(), 'generators/common/lib/');
-  //   srcDir = subAngularGenerator.templatePath('../../common/lib/');
-  //   //../../common/lib/
-  //   console.log('sourceRoot (b)= ' + subAngularGenerator.sourceRoot());
-  //   console.log('srcDir= ' + srcDir);
-  //   //srcDir = subAngularGenerator.templatePath('generators/common/lib/');
-  //   //var destPath = subAngularGenerator.destinationPath('app/lib/VRControls.js');
-  //   destDir = subAngularGenerator.destinationPath('app/lib/');
-
-  //   //common.copyUserLibDir(srcDir, destDir, subAngularGenerator);
-  //   subAngularGenerator.copyUserLibDir(srcDir, destDir);
-    
-  //   //console.log('test-lib-common: libDir=' + libDir);
-
-  //   fileContents = subAngularGenerator.fs.read(path.join(destDir, 'VRControls.js'));
-
-  //   //console.log('test-lib-common: fc=' + fileContents);
-
-  //   assert(typeof fileContents !== 'undefined');
-  //   //assert(/dummy VRControls/.test(fileContents));
-
-  //   //fileContents = subAngularGenerator.fs.read(destDir/VREffect.js);
-  //   fileContents = subAngularGenerator.fs.read(path.join(destDir, 'VREffect.js'));
-
-  //   //console.log('test-lib-common: fc=' + fileContents);
-
-  //   assert(typeof fileContents !== 'undefined');
-  //   //assert(/dummy VREffect/.test(fileContents));
-    
-  // });
 
   it('registerLibsHtml works', function () {
     var result, htmlPath, libArray, regex;
@@ -136,13 +84,10 @@ describe('common lib', function () {
       'lib/VRControls.js',
       'lib/VREffect.js',
     ];
-    // result = SAGen.read(SAGen.destinationPath(htmlPath));
-
-    // console.log('ut.registerLibsHtml: result=', result);
+        
     SAGen.registerLibsHtml(htmlPath, libArray);
 
-    result = SAGen.read(htmlPath);
-    console.log('ut.registerLibsHtml: result=' + result);
+    result = SAGen.read(htmlPath);    
 
     // make sure the libs are deliminted
     regex = /<!-- webvr-decorator lib add -->/m;
@@ -186,8 +131,7 @@ describe('common lib', function () {
     
     SAGen.registerLibsHtml(htmlPath, libArray);
 
-    result = SAGen.read(htmlPath);
-    console.log('ut.registerLibsHtml.idempotent test: result=' + result);
+    result = SAGen.read(htmlPath);    
     
     // make sure the libs are *not* there
     regex = /\<script src="lib\/VRControls\.js"><\/script>/m;
@@ -204,76 +148,18 @@ describe('common lib', function () {
     
     dir = subAngularGenerator.templatePath('../../common/lib/');
 
-    //console.log('test-lib-common.getFileList: fs=', subAngularGenerator.fs);
-    //dirList = subAngularGenerator.fs.readdir(dir);
-    //var done = this.async();
-    
     var readdir_cb = function (err, files) {
       if (err) {
         console.log('readdir_db: err=' + err);
         return;
       }
-      console.log('readdir_cb: files=', files);
-
-      //done();
-      // else {
-        
-      // }      
     };
 
-    //var done2 = this.async();
-    //dirList = fs_node.readdir(dir, readdir_cb);
-    //dirList = fs_node.readdirSync(dir);
-    //var dirlist = common.getFileListSync(dir);
-    //var dirlist = common.getFileList(dir);
-
-    //console.log('-->test-lib-common.getFileList: dirList=', dirList);
-    // use async to synchronize the subgenerator steps
-//    subgeneratorAll: function () {
-      // try {
-      //   //async.waterfall([
-      //   async.series([
-      //     function callMethod (cb) {
-      //       //this._subgeneratorApp(cb);
-      //       console.log('now in a');
-      //       dirList = common.getFileList(dir);
-      //       cb();
-      //     },
-      //     function testIt (cb) {
-      //       //this._subgeneratorServices(cb);
-      //       console.log('now in b');
-      //       console.log('-->test-lib-common.getFileList: dirList=', dirList);
-
-      //       cb();
-      //       //done();
-      //     },
-      //     function theEnd (cb) {
-      //       console.log('now in c');
-      //       done();
-      //     }
-            
-
-      //     //this._subgeneratorServices(callback),
-      //     // this._subgeneratorControllers(),
-      //     // this._subgeneratorDirectives()
-      //   ]);
-      // }
-      // catch(e){
-      //   console.log('subgeneratorAll: caught error ' + e);
-      // };
-//    },
-
-    subAngularGenerator.getLibList(dir, function (err, dirList) {
-      console.log('ut.dirList=', dirList);
-
+    subAngularGenerator.getLibList(dir, function (err, dirList) {      
       assert.equal(typeof dirList, 'object' );
-      console.log('dirList.length=' + dirList.length) ;
-      console.log('dirList[0]=' + dirList[0]) ;
-      // assert.equal(dirList[0], 'lib/VRControls.js');
-      // assert.equal(dirList[1], 'lib/VREffect.js');
+      
       done();
-    });
-    //done();
+    });    
   });
 
   it('getFileListSync works', function (done) {
@@ -282,25 +168,43 @@ describe('common lib', function () {
     
     fileList = common.getFileListSync(dir);
 
-    console.log('ut.getFilelistSync: fileList=', fileList);
-
     done();
   });
   
-  it('doIt2 works', function () {
-    //var result = common.doIt2();
+  it('doIt2 works', function () {    
     var result = subAngularGenerator.doIt2();
 
-    //assert.equal(result, 7);
-    console.log('ut.doIt2: result=' + result);
     assert.equal(result, 'generator-webvr-decorator');
   });
 
-  it('doIt works', function () {
-    //var result = common.doIt(subAngularGenerator, 'file.txt');
+  it('doIt works', function () {    
     var result = subAngularGenerator.doIt( 'file.txt');
 
     assert(/dummy-line/.test(result));
+  });
+
+  it('commentOutCode properly comments out code given a filter', function () {
+    // here we define a simple file where we want to comment out the lines of the
+    //'return' statement
+    var fileContents =
+    "'use strict';\n\n" +
+    "angular.module('yoAngularVirginApp')" +
+    ".directive('canvasKeys', function ( $document, $rootScope, main, base) {\n" +
+    "return {\n" +
+    " template: '<div></div>',\n" +
+    " restrict: 'E',\n" +
+    " link: function postLink(scope, element, attrs) {\n" +
+    "   element.text('this is the canvasKeys directive');\n" +
+    " }\n " +
+   "};\n" +
+   "  });\n";
+    
+    subAngularGenerator.fs.write('commentOutCode.txt', fileContents);
+
+    //var regex = /^\\s*return\\s*\\{[^\\}]*\\}/m;
+    var regex = /^\\s*return\\s*\\{[^\\}]*\\}/;
+    
+    subAngularGenerator.commentOutCode('commentOutCode.txt', regex);
   });
   
 });
