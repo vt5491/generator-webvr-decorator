@@ -24,8 +24,7 @@ module.exports = yeoman.generators.Base.extend({
   
   initializing: function() {
     this.props = {};
-    this.props.skipInstall = true;
-    //this.props.skipInstall = false;
+    
     this.props.skipInstall = (this.options.skipInstall ? true : false);    
   },
   

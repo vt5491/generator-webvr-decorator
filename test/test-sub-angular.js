@@ -168,8 +168,7 @@ describe('angular-vr-base:individual methods', function () {
 
     assert.equal(subAngularGenerator.artifacts.services.main, subAngularGenerator.defaultArtifactNames.mainService);
   });
-
-  //TODO rename subAngularGenerator
+  
   it('vr-base generator is an instance variable', function () {
   });
 

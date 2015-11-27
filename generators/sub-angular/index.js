@@ -87,26 +87,26 @@ module.exports = AngVrBase.extend({
 
   },
 
-  /*
-  prompting: function () {
-    var done = this.async();
+  
+  // prompting: function () {
+  //   var done = this.async();
 
-    var prompts = [{
-      type: 'confirm',
-      name: 'someOption',
-      message: 'sub-angular: Would you like to enable this option?',
-      default: true
-    }];
+  //   var prompts = [{
+  //     type: 'confirm',
+  //     name: 'someOption',
+  //     message: 'sub-angular: Would you like to enable this option?',
+  //     default: true
+  //   }];
 
-    this.prompt(prompts, function (props) {
-      this.props = props;
-      // To access props later use this.props.someOption;
+  //   this.prompt(prompts, function (props) {
+  //     this.props = props;
+  //     // To access props later use this.props.someOption;
 
-      done();
-    }.bind(this));
+  //     done();
+  //   }.bind(this));
 
-  },
-*/
+  // },
+
   createAngularServices: function () {
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       this.composeWith('angular:service',  {
@@ -302,10 +302,14 @@ module.exports = AngVrBase.extend({
     this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
 
     // directives
-    var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'].toLowerCase() ] + '.js');    
+    var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'].toLowerCase() ] + '.js');
     
     this._injectDependencies(directivePath, 'directive', ['$document', '$rootScope', this.artifacts.services.main, this.artifacts.services.base]);
+
+    // comment out the prior angular stub code    
+    var regex = /(^\s*return\s*\{[^\}]*\}.*\n^.*\};)/m; 
     
+    this.commentOutCode(directivePath, regex);
   },                                                 
       
   // inject partials into the template code
@@ -364,8 +368,7 @@ module.exports = AngVrBase.extend({
         { partial: partialContents}
       );
       
-    }.bind(this));
-    
+    }.bind(this));    
   },
 
   markupHtml: function () {
@@ -393,7 +396,7 @@ module.exports = AngVrBase.extend({
                         
         var htmlPath = this.destinationPath('app/index.html');
         this.registerLibsHtml(htmlPath, libArray);
-        //callback(null, 'hello');
+        
         callback(null);
       }.bind(this)      
     ],
@@ -436,6 +439,22 @@ module.exports = AngVrBase.extend({
       );
     }.bind(this));
 
+    Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
+      var templatePath = this.destinationPath('app/scripts/directives/' +
+                                              [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      
+      this.fs.copyTpl(
+        templatePath,
+        templatePath, {
+          name: key,
+          appName: this.options.appName,
+          //'main-service': this.artifacts.services.main,
+          mainService: this.artifacts.services.main,
+          baseService: this.artifacts.services.base,
+        }
+      );
+    }.bind(this));
+    
     // copy user libs here    
     var srcDir = this.templatePath('../../common/lib/');
     var destDir = this.destinationPath('app/lib/');

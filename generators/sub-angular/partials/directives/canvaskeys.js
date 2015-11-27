@@ -9,81 +9,43 @@
           // prevent browser from handling as well
           event.preventDefault();
 
-          // Note: there are two pairs for each keypress.  The first line seems to work
-          // in scruz and the second in svale.  Have no idea why
           switch( event.keyCode) {
             case 'S'.charCodeAt(0):
-
-            VrsketchService.camera.cameraLogical.translateZ(base.CAMERA_MOVE_DELTA);
-            //VrsketchService.camera.cameraLogical.translateX(-base.CAMERA_MOVE_DELTA);
-            console.log('you pressed s');
-            //main.camera.translateZ(base.CAMERA_MOVE_DELTA);
-            main.camera.translateX(1);
+              <%= mainService %>.camera.translateZ(<%= baseService %>.CAMERA_MOVE_DELTA); 
+            break;
             
-            break;
             case 'W'.charCodeAt(0):
- 
-              VrsketchService.camera.cameraLogical.translateZ(-base.CAMERA_MOVE_DELTA);
-              //VrsketchService.camera.cameraLogical.translateX(base.CAMERA_MOVE_DELTA);
-
-              break;
-            case 'A'.charCodeAt(0):
- 
-              VrsketchService.camera.cameraLogical.translateX(-base.CAMERA_MOVE_DELTA);
-              //VrsketchService.camera.cameraLogical.translateZ(-base.CAMERA_MOVE_DELTA);
-
+              <%= mainService %>.camera.translateZ(-<%= baseService %>.CAMERA_MOVE_DELTA);
             break;
+            
+            case 'A'.charCodeAt(0):
+              <%= mainService %>.camera.translateX(<%= baseService %>.CAMERA_MOVE_DELTA);
+            break;
+            
             case 'D'.charCodeAt(0):
-
-              VrsketchService.camera.cameraLogical.translateX(base.CAMERA_MOVE_DELTA);
-              //VrsketchService.camera.cameraLogical.translateZ(base.CAMERA_MOVE_DELTA);
-
-              break;
+              <%= mainService %>.camera.translateX(-<%= baseService %>.CAMERA_MOVE_DELTA);
+            break;
 
             case 'Q'.charCodeAt(0):
-              
-              //VrsketchService.BaseRotation.y +=  base.ONE_DEGREE * base.CAMERA_ROT_DELTA;
-              //VrsketchService.camera.cameraLogical.rotateOnAxis(
-              // VrsketchService.camera.cameraObject.rotateOnAxis(
-              //  new THREE.Vector3(0,1,0), base.ONE_DEGREE * base.CAMERA_ROT_DELTA);
-              //tmpQuat = new Quaternion().setFromAxisAngle ( axis, angle );
-              var tmpQuat = new THREE.Quaternion().setFromAxisAngle ( new THREE.Vector3(0,1,0), base.ONE_DEGREE * base.CAMERA_ROT_DELTA );
-              //VrsketchService.BaseRotation.multiply(tmpQuat);
-              VrsketchService.BaseRotation.multiplyQuaternions(VrsketchService.BaseRotation, tmpQuat);
-
-              //VrsketchService.camera.cameraLogical.rotation.y +=  base.ONE_DEGREE * base.CAMERA_ROT_DELTA;
-              VrsketchService.camera.cameraLogical.quaternion.multiply(tmpQuat);
-
+              <%= mainService %>.cube.rotation.z +=  <%= baseService %>.ONE_DEGREE * <%= baseService %>.CAMERA_ROT_DELTA;
             break;
             
             case 'E'.charCodeAt(0):
-              //VrsketchService.BaseRotation.y = VrsketchService.BaseRotation.y - base.ONE_DEGREE * base.CAMERA_ROT_DELTA;
-              //VrsketchService.BaseRotation.y -=  base.ONE_DEGREE * base.CAMERA_ROT_DELTA;
-              var tmpQuat = new THREE.Quaternion().setFromAxisAngle ( new THREE.Vector3(0,1,0), -base.ONE_DEGREE * base.CAMERA_ROT_DELTA );
-              //VrsketchService.BaseRotation.multiply(tmpQuat);
-              VrsketchService.BaseRotation.multiplyQuaternions(VrsketchService.BaseRotation, tmpQuat);
-
-              //VrsketchService.camera.cameraLogical.rotation.y -=  base.ONE_DEGREE * base.CAMERA_ROT_DELTA;
-              VrsketchService.camera.cameraLogical.quaternion.multiply(tmpQuat);
+              <%= mainService %>.cube.rotation.z +=  -<%= baseService %>.ONE_DEGREE * <%= baseService %>.CAMERA_ROT_DELTA;
+            break;
             
-            break;
             case 'P'.charCodeAt(0):
-
-              VrsketchService.camera.cameraLogical.translateY(base.CAMERA_MOVE_DELTA);
-
+              <%= mainService %>.camera.translateY(-<%= baseService %>.CAMERA_MOVE_DELTA);
             break;
+            
             case 'N'.charCodeAt(0):
-
-              VrsketchService.camera.cameraLogical.translateY(-base.CAMERA_MOVE_DELTA);
-
+              <%= mainService %>.camera.translateY(<%= baseService %>.CAMERA_MOVE_DELTA);
             break;
             
             case 'R'.charCodeAt(0):
-
-              VrsketchService.BasePosition.copy(VrsketchService.INIT_POSITION);
-              VrsketchService.BaseRotation.copy(VrsketchService.INIT_ROTATION);
-
-            break;
+              <%= mainService %>.BasePosition.copy(<%= mainService %>.INIT_POSITION);
+              <%= mainService %>.BaseRotation.copy(<%= mainService %>.INIT_ROTATION);
+            break;            
           }
         };
 

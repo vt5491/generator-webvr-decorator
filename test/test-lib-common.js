@@ -18,8 +18,7 @@ var async = require('async');
 
 // helper test methods
 // these may be called by unit tests for modules that mixin in the common lib
-var  _writeDummyIndexHtml = function (str, gen) {  
-  
+var  _writeDummyIndexHtml = function (str, gen) {    
   var dummyHtml = '<!doctype html>\n' +
         '<html class="no-js">\n' +
         '<head>\n' +
@@ -104,8 +103,7 @@ describe('common lib', function () {
     assert(regex.test(result));
   });
 
-  it('registerLibsHtml is idempotent', function () {
-    //
+  it('registerLibsHtml is idempotent', function () {    
     // write a new index.html which has the webvr-decorator tag
     var dummyHtml = '<!doctype html>\n' +
       '<html class="no-js">\n' +
@@ -183,9 +181,11 @@ describe('common lib', function () {
     assert(/dummy-line/.test(result));
   });
 
-  it('commentOutCode properly comments out code given a filter', function () {
+  it('commentOutCode properly comments out code given a regex', function () {
     // here we define a simple file where we want to comment out the lines of the
     //'return' statement
+    var result = null;
+    var file = 'commentOutCode.txt';
     var fileContents =
     "'use strict';\n\n" +
     "angular.module('yoAngularVirginApp')" +
@@ -199,12 +199,21 @@ describe('common lib', function () {
    "};\n" +
    "  });\n";
     
-    subAngularGenerator.fs.write('commentOutCode.txt', fileContents);
+    subAngularGenerator.fs.write(file, fileContents);
 
-    //var regex = /^\\s*return\\s*\\{[^\\}]*\\}/m;
-    var regex = /^\\s*return\\s*\\{[^\\}]*\\}/;
-    
+    var regex = /(^\s*return\s*\{[^\}]*\}.*\n^.*\};)/m; //works
+        
     subAngularGenerator.commentOutCode('commentOutCode.txt', regex);
+
+    result = subAngularGenerator.fs.read(file, fileContents);
+
+    // the return statement should be commented out
+    assert(/^\/\/return/m.test(result));
+
+    // there should also be a comment saying it was commented out
+    // by 'webvr-decorator'
+    var tagRegex = new RegExp('^\/\/' + '\\s*' + common.globals.CODE_COMMENTED_BEGIN_TAG, 'm');
+    assert(tagRegex.test(result));
   });
   
 });
