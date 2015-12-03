@@ -40,15 +40,33 @@ After the required libraries are installed (something that can take several minu
 grunt serve
 ```
 
-The webVR enable rotating cube scene will be at the following URL:
+The application supports WASD keys to move around:
+```bash
+w: move camera forward
+s: move camera backward
+d: move camera right
+a: move camera left
+e: rotate cube clockwise
+q: rotate cube counter-clockwise
+```
+The webVR enabled rotating cube scene will be at the following URL:
 ```bash
 http://localhost:9001/#/
 ```
 
 Note: it is recommended you only install into a 'vanilla' angular app (as it exists immediately after running the angular generator).  The generator has only been tested on angular apps of this form.  If you are going to install to non-vanilla app, it is recommended you make a backup first.
 
-##
+## ScreenShots
+The following were run on [Mozilla nightly build](https://nightly.mozilla.org/)
+
+pre VR expansion:
+
 ![](images/webvr-decorator-screen-shot.png)
+
+with VR expansion:
+![](images/webvr-decorator-screen-shot-vr-mode.png)
+
+Running app available [here](http://vt5491.github.io/#/)
 ## License
 
 MIT
