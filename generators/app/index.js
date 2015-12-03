@@ -36,34 +36,35 @@ module.exports = yeoman.generators.Base.extend({
       'Welcome to the sweet ' + chalk.red('WebVrDecorator') + ' generator!'
     ));
 
-    // var prompts = [{
-    //   type: 'confirm',
-    //   name: 'someOption',
-    //   message: 'Would you like to enable this option?',
-    //   default: true
-    // }];
-
-    // this.prompt(prompts, function (props) {
-    //   this.props = props;
-    //   // To access props later use this.props.someOption;
-
-    //   done();
-    // }.bind(this));
-
     var prompts = [];
     
+    // prompts.push( {
+    //   type: 'input',
+    //   name: 'appName',
+    //   default: 'webvrapp',
+    //   message: 'What is your app\'s name [webvrapp] ?'
+    // });
+
     prompts.push( {
-      type: 'input',
-      name: 'appName',
-      default: 'webvrapp',
-      message: 'What is your app\'s name [webvrapp] ?'
+      type: 'confirm',      
+      name: 'continue',
+      default: 'true',
+      message: 'Do you want to add webVR capability to this application ?'
     });
+    
+    this.prompt(prompts, function (answers) {
+      this.props = answers;
+      //this.appName = answers.appName;      
 
-    this.prompt(prompts, function (props) {
-      this.props = props;
-      this.appName = props.appName;
-
-      done();
+      if (!answers.continue) {
+        console.log('Exiting install');
+        return;
+      }
+      else {
+        console.log('Continuing with install');
+        done();
+      }
+      
     }.bind(this));
    
   },

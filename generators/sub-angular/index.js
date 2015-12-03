@@ -386,7 +386,7 @@ module.exports = AngVrBase.extend({
         // add in some static libs that are defined elsewhere
         
         // I guess I need to add these manually
-        libArray[libArray.length] = 'bower_components/threejs/build/three.js';
+        libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
         libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
         
         libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
