@@ -1,47 +1,54 @@
-# generator-vr-decorator [![Build Status](https://secure.travis-ci.org/vt5491/generator-vr-decorator.png?branch=master)](https://travis-ci.org/vt5491/generator-vr-decorator)
+# generator-webvr-decorator 
 
-> [Yeoman](http://yeoman.io) generator
+> Yeoman webvr-decorator generator - Adds [WebVR](http://webvr.info/) capability to an exisitng application.
+> 
+> Note: currently only applications generated with the [angular generator](https://github.com/yeoman/generator-angular#readme) are supported.  But the generator has been desigined to accomodate multiple application formats.  Additional application formats such as [Webapp](https://github.com/yeoman/generator-webapp#readme) are planned for the future.
 
+WebVR and three.js are very powerful platforms.  When running together, these libraries allow you create full VR-enabled web applications that run directly on any WebVR enabled browser.  Click on the "WebVR" fullscreen icon of a running application, and you will generate a split-screen view suitable for viewing on VR head-mounted displays such as Oculus Rift, and Google Cardboard.
+
+Unfortunatley, both WebVR and three.js involve large amounts of tedious boilerplate.  If you've never created a WebVR, it may take several days to figure what needs to be done as documentation is sparse.  Even experieced WebVR application developers may find it take several hours to set up a basic application, particularly when you have to integrate it into a non-trivial platform such as angular.
+
+webvr-decorator allows you to inject the necessary code into an existing application, that will display a [basic VR enabled scene of a rotating cube](http://vt5491.github.io/#/).  And by using a generator, you get a simple but useful skeleton architecture utilizing standard WebVR best practicies with which to build your app on top of.
 
 ## Getting Started
-
-### What is Yeoman?
-
-Trick question. It's not a thing. It's this guy:
-
-![](http://i.imgur.com/JHaAlBJ.png)
-
-Basically, he wears a top hat, lives in your computer, and waits for you to tell him what kind of application you wish to create.
-
-Not every new computer comes with a Yeoman pre-installed. He lives in the [npm](https://npmjs.org) package repository. You only have to ask for him once, then he packs up and moves into your hard drive. *Make sure you clean up, he likes new and shiny things.*
-
-```bash
-npm install -g yo
-```
-
-### Yeoman Generators
-
-Yeoman travels light. He didn't pack any generators when he moved in. You can think of a generator like a plug-in. You get to choose what type of application you wish to create, such as a Backbone application or even a Chrome extension.
-
-To install generator-vr-decorator from npm, run:
 
 ```bash
 npm install -g generator-vr-decorator
 ```
+Install your basic target application.  For example angular ([see here for how to generate an angular application](https://github.com/yeoman/generator-angular#readme) 
 
-Finally, initiate the generator:
-
+cd to your target application:
+Make a new directory, and `cd` into it:
+```
+cd /path/to/my/app
+```
+Run the generator
 ```bash
-yo vr-decorator
+yo webvr-decorator
+```
+The generator will confirm if you wish to continue:
+```bash
+? Do you want to add webVR capability to this application ? (Y/n) 
+```
+The generator will update several files.  It will ask for permision first.  Reply with 'y' to update a single file, or specify 'a' to update all files:
+```bash
+? Overwrite app/scripts/services/main.js? (Ynaxdh)
 ```
 
-### Getting To Know Yeoman
+After the required libraries are installed (something that can take several minutes), run start your angular app like always:
+```bash
+grunt serve
+```
 
-Yeoman has a heart of gold. He's a person with feelings and opinions, but he's very easy to work with. If you think he's too opinionated, he can be easily convinced.
+The webVR enable rotating cube scene will be at the following URL:
+```bash
+http://localhost:9001/#/
+```
 
-If you'd like to get to know Yeoman better and meet some of his friends, [Grunt](http://gruntjs.com) and [Bower](http://bower.io), check out the complete [Getting Started Guide](https://github.com/yeoman/yeoman/wiki/Getting-Started).
+Note: it is recommended you only install into a 'vanilla' angular app (as it exists immediately after running the angular generator).  The generator has only been tested on angular apps of this form.  If you are going to install to non-vanilla app, it is recommended you make a backup first.
 
-
+##
+![](images/webvr-decorator-screen-shot.png)
 ## License
 
 MIT
