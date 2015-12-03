@@ -1,6 +1,6 @@
 {
   "name": "generator-webvr-decorator",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Yeoman generator",
   "license": "MIT",
   "main": "app/index.js",
@@ -14,7 +14,8 @@
     "test": "mocha"
   },
   "files": [
-    "generators"
+    "generators",
+    "lib"
   ],
   "keywords": [
     "yeoman-generator",
