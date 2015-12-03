@@ -1,12 +1,12 @@
 {
   "name": "generator-webvr-decorator",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Yeoman generator",
   "license": "MIT",
   "main": "app/index.js",
   "repository": "vt5491/generator-webvr-decorator",
   "author": {
-    "name": "",
+    "name": "vt",
     "email": "",
     "url": "https://github.com/vt5491"
   },
@@ -17,7 +17,10 @@
     "generators"
   ],
   "keywords": [
-    "yeoman-generator"
+    "yeoman-generator",
+    "webvr",
+    "vr",
+    "angular"
   ],
   "dependencies": {
     "async": "^1.5.0",

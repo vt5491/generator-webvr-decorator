@@ -13,7 +13,7 @@ webvr-decorator allows you to inject the necessary code into an existing applica
 ## Getting Started
 
 ```bash
-npm install -g generator-vr-decorator
+npm install -g generator-webvr-decorator
 ```
 Install your basic target application.  For example angular ([see here for how to generate an angular application](https://github.com/yeoman/generator-angular#readme) 
 
