@@ -70,3 +70,11 @@ Running app available [here](http://vt5491.github.io/#/)
 ## License
 
 MIT
+
+## Additional
+Skip installing the libraries (useful if running multiple times):
+
+```bash
+yo webvr-decorator --skipInstall
+```
+

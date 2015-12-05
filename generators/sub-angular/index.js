@@ -386,13 +386,13 @@ module.exports = AngVrBase.extend({
         // add in some static libs that are defined elsewhere
         
         // I guess I need to add these manually
-        libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
-        libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
+        //libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
+        //libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
         
         libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
         libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
         
-        libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
+        //libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
                         
         var htmlPath = this.destinationPath('app/index.html');
         this.registerLibsHtml(htmlPath, libArray);
@@ -485,7 +485,10 @@ module.exports = AngVrBase.extend({
     //   //this.bowerInstall('three.js', ['--save-dev']);
     //   this.bowerInstall(['three.js'], { 'save': true });
     // };
-  }
+  },
     
+ end: function () {
+   this.log('sub-angular: all done');
+ }
 });
 

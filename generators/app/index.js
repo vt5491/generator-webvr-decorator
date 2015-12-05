@@ -24,6 +24,7 @@ module.exports = yeoman.generators.Base.extend({
   
   initializing: function() {
     this.props = {};
+    this.props = this.options;
     
     this.props.skipInstall = (this.options.skipInstall ? true : false);    
   },
@@ -33,7 +34,7 @@ module.exports = yeoman.generators.Base.extend({
 
     // Have Yeoman greet the user.
     this.log(yosay(
-      'Welcome to the sweet ' + chalk.red('WebVrDecorator') + ' generator!'
+      'Welcome to the sweet ' + chalk.red('webvr-decorator') + ' generator!'
     ));
 
     var prompts = [];
@@ -49,7 +50,7 @@ module.exports = yeoman.generators.Base.extend({
       type: 'confirm',      
       name: 'continue',
       default: 'true',
-      message: 'Do you want to add webVR capability to this application ?'
+      message: 'Add webVR capability to this application ?'
     });
     
     this.prompt(prompts, function (answers) {
@@ -98,7 +99,7 @@ module.exports = yeoman.generators.Base.extend({
     // they have 'three.js', we need the full 'threejs' install.
     //if(!(tgtJson.dependencies['threejs'] || tgtJson.dependencies['three.js'])) {
     
-    if(!this.props.skipInstall) {
+    if(!this.options.skipInstall) {
       // first read the existing bower.json and see what's already installed
       var tgtJson = jsonfile.readFileSync(this.destinationPath('bower.json'));
       
@@ -116,6 +117,9 @@ module.exports = yeoman.generators.Base.extend({
       };
 
     };
+  },
+ 
+  end: function () {
+    this.log('webvr-decorator: all done');
   }
-  
 });
