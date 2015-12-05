@@ -81,9 +81,11 @@ module.exports = AngVrBase.extend({
     // have to dynamically create this at runtime, since we don't know the app name
     // until the user supplies it via prompts.
     var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
-    var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
+    // creating the vrapp at runtime causes write errors from the generator when running as an 'official'
+    // generator (from npm).  Since we currently do not need this comment this out
+    // var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
 
-    this.fs.copy(mainFilePath, vrAppFilePath);
+    // this.fs.copy(mainFilePath, vrAppFilePath);
 
   },
 

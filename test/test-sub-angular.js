@@ -172,16 +172,18 @@ describe('angular-vr-base:individual methods', function () {
   it('vr-base generator is an instance variable', function () {
   });
 
-  it('initliazing creates an <appName> partial', function () {
+  // dynamcially creating 'controller/vrapp.js' causes write errors at runtime
+  // remove this test, until we need this functionality
+  // it('initliazing creates an <appName> partial', function () {
    
-    var mainFilePath = path.join(__dirname, '../generators/sub-angular/partials/controllers/main.js');
-    var vrAppFilePath = path.join(__dirname, '../generators/sub-angular/partials/controllers/' + APP_NAME + '.js');
-    // next: verify the contents
-    var mainFileContents = subAngularGenerator.fs.read(mainFilePath);
-    var vrAppFileContents = subAngularGenerator.fs.read(vrAppFilePath);
+  //   var mainFilePath = path.join(__dirname, '../generators/sub-angular/partials/controllers/main.js');
+  //   var vrAppFilePath = path.join(__dirname, '../generators/sub-angular/partials/controllers/' + APP_NAME + '.js');
+  //   // next: verify the contents
+  //   var mainFileContents = subAngularGenerator.fs.read(mainFilePath);
+  //   var vrAppFileContents = subAngularGenerator.fs.read(vrAppFilePath);
     
-    assert.equal(mainFileContents, vrAppFileContents );
-  });
+  //   assert.equal(mainFileContents, vrAppFileContents );
+  // });
 
   it('_injectDependencies properly works', function () {
     var fp = 'app/scripts/controllers/dummy.js';
