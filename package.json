@@ -1,13 +1,13 @@
 {
   "name": "generator-webvr-decorator",
-  "version": "0.1.2",
-  "description": "Yeoman generator",
+  "version": "0.1.5",
+  "description": "add WebVr boilerplate to an existing application",
   "license": "MIT",
   "main": "app/index.js",
   "repository": "vt5491/generator-webvr-decorator",
   "author": {
-    "name": "vt",
-    "email": "",
+    "name": "vt5491",
+    "email": "vt5491@gmail.com",
     "url": "https://github.com/vt5491"
   },
   "scripts": {

@@ -38,21 +38,26 @@ module.exports = AppBase.extend({
   
   initializing: function() {
     this.props = {};
+    this.props = this.options;
     
     this.props.skipinstall = (this.options.skipinstall ? true : false);    
   },
   
   prompting:  {
 
-    openingPrompt: function () {
-      var done = this.async();
-
-      // have yeoman greet the user.
-      this.log(yosay(
-        'welcome to the sweet 2' + chalk.red('webvrdecorator') + ' generator!'
-      ));
-
+      //var done = this.async();
+    // Have Yeoman greet the user.
+//    this.log(yosay(
+//      'Welcome to the sweet ' + chalk.red('webvr-decorator') + ' generator!'
+//    ));
+//
+//      // have yeoman greet the user.
+//      this.log(yosay(
+//        'welcome to the sweet 2' + chalk.red('webvrdecorator') + ' generator!'
+//      ));
+      initialPrompt: function () {
       var prompts = [];
+      var done = this.async();
       
       // prompts.push( {
       //   type: 'input',
@@ -67,6 +72,13 @@ module.exports = AppBase.extend({
 //vt        default: 'true',
 //vt        message: 'do you want to add webvr capability to this application ?'
 //vt      });
+
+    prompts.push( {
+      type: 'confirm',      
+      name: 'continue',
+      default: 'true',
+      message: 'Add webVR capability to this application ?'
+    });
 
       prompts.push( {
         type: 'checkbox',
@@ -84,25 +96,6 @@ module.exports = AppBase.extend({
         ]
       });
 
-    // prompts.push({
-    //     type: 'checkbox',
-    //     name: 'myHash',
-    //     message: 'input it',
-    //     choices: [ {
-    //         value: 'abc',
-    //         name: this.abc,
-    //         checked: true,}]
-    // });
-      
-    // prompts.push({
-    //     type: 'checkbox',
-    //     name: 'artifactsToRename2',
-    //     message: 'input it',
-    //     choices: [ {
-    //         value: 'abc',
-    //         name: this.abc,
-    //         checked: false,}]
-    // });
       this.prompt(prompts, function (answers) {
         console.log('answers=', answers);
         console.log('answers=', answers);
@@ -124,21 +117,24 @@ module.exports = AppBase.extend({
         console.log('now back from done');
         //vt-x end
         //vt end
+        }.bind(this));
 
-        if (!answers.continue) {
-          console.log('Exiting install');
-          return;
-        }
-        else {
+    
+    // this.prompt(prompts, function (answers) {
+    //   this.props = answers;
+    //   //this.appName = answers.appName;      
 
-          console.log('Continuing with install');
-          done();
-        }
-        
-      }.bind(this));
-      
-    },
-
+    //   if (!answers.continue) {
+    //     console.log('Exiting install');
+    //     return;
+    //   }
+    //   else {
+    //     console.log('Continuing with install');
+    //     done();
+    //   }
+    // }.bind(this));
+     },           
+    //}
     renameArtifactsPrompt: function() {
       var done = this.async();
       
@@ -195,11 +191,16 @@ module.exports = AppBase.extend({
   default: function () {    
     console.log('app:this.artifactsToRename=', this.artifactsToRename);
     console.log('app:this.userNames=', this.userNames);
+    console.log('app:default: props=', this.props);
+    //this.props.userNames = {};
+    //this.props.userNames = this.userNames;
     if (true) {
 
       this.composeWith('vr-base:sub-angular',{
         options: this.props,
-        userNames: this.userName,
+        //options: this.userNames,
+        //userNames: this.userNames,
+        //userNames: this.props,
       },
        {
         local: require.resolve('../sub-angular')
@@ -224,7 +225,7 @@ module.exports = AppBase.extend({
     // they have 'three.js', we need the full 'threejs' install.
     //if(!(tgtJson.dependencies['threejs'] || tgtJson.dependencies['three.js'])) {
     
-    if(!this.props.skipInstall) {
+    if(!this.options.skipInstall) {
       // first read the existing bower.json and see what's already installed
       var tgtJson = jsonfile.readFileSync(this.destinationPath('bower.json'));
       
@@ -242,6 +243,9 @@ module.exports = AppBase.extend({
       };
 
     };
+  },
+ 
+  end: function () {
+    this.log('webvr-decorator: all done');
   }
-  
 });

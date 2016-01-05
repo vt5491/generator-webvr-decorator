@@ -28,6 +28,7 @@ module.exports = AngVrBase.extend({
     
     // services    
     this.defaultArtifactNames.mainService = 'main';
+    //this.defaultArtifactNames.mainService = 'mainService';
     this.defaultArtifactNames.baseService = 'base';
     this.defaultArtifactNames.utilsService = 'utils';
     
@@ -70,25 +71,38 @@ module.exports = AngVrBase.extend({
     this.artifacts.directives.canvasKeys = this.defaultArtifactNames.canvasKeysDirective;
     
     //this.skipInstall = true;
-    this.skipInstall = this.options.skipInstall;
+    //vt-xthis.skipInstall = this.options.skipInstall;
     //this.skipInstall = false;    
+    //vt-x
+    console.log('subAngular._globals: this.options a=', this.options);
+    //this.options.userNames = this.options.services;
+    this.options.abc = 17; // cant add
+    console.log('subAngular._globals: this.options b=', this.options);
+    //console.log('sub: this.userNames=', this.userNames);
+      
+    //vt-x end
+  //}.bind(this),
   },
 
   initializing: function () {    
+    console.log('subAngular.initializing: this.userNames=', this.userNames);
     this._initGlobals();
+    this.options.def = 18; //cant add
 
     console.log('subAngular.initializing: this.props=', this.props);
     console.log('subAngular.initializing: this.options=', this.options);
-    console.log('subAngular.initializing: this.options.userNames.services.main=', this.options.userNames.services.main);
+    console.log('subAngular.initializing: this.options.userNames.services=', this.options.userNames.services);
+    //console.log('subAngular.initializing: this.options.userNames.services.main=', this.options.userNames.services.main);
     return;
     // we need to create a partial file that is the same name as the appName.  We
     // have to dynamically create this at runtime, since we don't know the app name
     // until the user supplies it via prompts.
-//vt    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
-//vt    var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
-//vt
-//vt    this.fs.copy(mainFilePath, vrAppFilePath);
+    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
+    // creating the vrapp at runtime causes write errors from the generator when running as an 'official'
+    // generator (from npm).  Since we currently do not need this comment this out
+    // var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
 
+    // this.fs.copy(mainFilePath, vrAppFilePath);
   },
 
   
@@ -394,13 +408,13 @@ module.exports = AngVrBase.extend({
         // add in some static libs that are defined elsewhere
         
         // I guess I need to add these manually
-        libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
-        libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
+        //libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
+        //libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
         
         libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
         libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
         
-        libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
+        //libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
                         
         var htmlPath = this.destinationPath('app/index.html');
         this.registerLibsHtml(htmlPath, libArray);
@@ -494,7 +508,10 @@ module.exports = AngVrBase.extend({
     //   //this.bowerInstall('three.js', ['--save-dev']);
     //   this.bowerInstall(['three.js'], { 'save': true });
     // };
-  }
+  },
     
+ end: function () {
+   this.log('sub-angular: all done');
+ }
 });
 
