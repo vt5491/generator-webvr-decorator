@@ -7,73 +7,199 @@
 
 'use strict';
 
+var _ = require('lodash');
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
 var jsonfile = require('jsonfile');
 var util = require('util');
 var merge = require('merge'), original, cloned;
+//vt add
+var inquirer = require('inquirer');
+//vt end
 
-module.exports = yeoman.generators.Base.extend({
+// helper methods go here
+var AppBase = yeoman.generators.Base.extend({
+
+});
+// mixin common class
+_.extend(AppBase.prototype, require('../../lib/common.js'));
+
+//vtmodule.exports = yeoman.generators.base.extend({
+//module.exports = yeoman.generators.Base.extend({
+module.exports = AppBase.extend({
 
   constructor: function () {
+    //vtyeoman.generators.base.apply(this, arguments);
     yeoman.generators.Base.apply(this, arguments);
 
-    this.option('skipInstall');
+    this.option('skipinstall');
   },
   
   initializing: function() {
     this.props = {};
     
-    this.props.skipInstall = (this.options.skipInstall ? true : false);    
+    this.props.skipinstall = (this.options.skipinstall ? true : false);    
   },
   
-  prompting: function () {
-    var done = this.async();
+  prompting:  {
 
-    // Have Yeoman greet the user.
-    this.log(yosay(
-      'Welcome to the sweet ' + chalk.red('WebVrDecorator') + ' generator!'
-    ));
+    openingPrompt: function () {
+      var done = this.async();
 
-    var prompts = [];
-    
-    // prompts.push( {
-    //   type: 'input',
-    //   name: 'appName',
-    //   default: 'webvrapp',
-    //   message: 'What is your app\'s name [webvrapp] ?'
-    // });
+      // have yeoman greet the user.
+      this.log(yosay(
+        'welcome to the sweet 2' + chalk.red('webvrdecorator') + ' generator!'
+      ));
 
-    prompts.push( {
-      type: 'confirm',      
-      name: 'continue',
-      default: 'true',
-      message: 'Do you want to add webVR capability to this application ?'
-    });
-    
-    this.prompt(prompts, function (answers) {
-      this.props = answers;
-      //this.appName = answers.appName;      
-
-      if (!answers.continue) {
-        console.log('Exiting install');
-        return;
-      }
-      else {
-        console.log('Continuing with install');
-        done();
-      }
+      var prompts = [];
       
-    }.bind(this));
-   
-  },
+      // prompts.push( {
+      //   type: 'input',
+      //   name: 'appname',
+      //   default: 'webvrapp',
+      //   message: 'what is your app\'s name [webvrapp] ?'
+      // });
 
+//vt      prompts.push( {
+//vt        type: 'confirm',      
+//vt        name: 'continue',
+//vt        default: 'true',
+//vt        message: 'do you want to add webvr capability to this application ?'
+//vt      });
+
+      prompts.push( {
+        type: 'checkbox',
+        name: 'artifactsToRename',
+        message: 'please specify any name you wish to override:',
+        choices: [
+          {
+            value: new inquirer.Separator("--- services ---")
+          },
+          {
+            value: 'mainService',
+            name: this.globals.MAIN_SERVICE,
+            checked: false
+          },
+        ]
+      });
+
+    // prompts.push({
+    //     type: 'checkbox',
+    //     name: 'myHash',
+    //     message: 'input it',
+    //     choices: [ {
+    //         value: 'abc',
+    //         name: this.abc,
+    //         checked: true,}]
+    // });
+      
+    // prompts.push({
+    //     type: 'checkbox',
+    //     name: 'artifactsToRename2',
+    //     message: 'input it',
+    //     choices: [ {
+    //         value: 'abc',
+    //         name: this.abc,
+    //         checked: false,}]
+    // });
+      this.prompt(prompts, function (answers) {
+        console.log('answers=', answers);
+        console.log('answers=', answers);
+        this.props = answers;
+        console.log('this.props=', this.props);
+        //this.appName = answers.appName;      
+        //vt add
+        this.props.userNames = {};
+        this.props.userNames.services = {};
+        this.props.userNames.services.main = 'main3';
+        this.props.userNames.services.base = 'base';
+        this.props.userNames.services.utils = 'utils';
+        
+        //this.artifactsToRename = props.artifactsToRename;
+        this.artifactsToRename = answers.artifactsToRename;
+        //vt-x start
+        console.log('now calling done');
+          done();
+        console.log('now back from done');
+        //vt-x end
+        //vt end
+
+        if (!answers.continue) {
+          console.log('Exiting install');
+          return;
+        }
+        else {
+
+          console.log('Continuing with install');
+          done();
+        }
+        
+      }.bind(this));
+      
+    },
+
+    renameArtifactsPrompt: function() {
+      var done = this.async();
+      
+      var prompts = [];
+      
+      this.artifactsToRename.forEach(function (val, index, array) {
+      //for (var i =0; i < this.artifactsToRename.length; i++) {
+        //debugger;
+        prompts.push( {
+          type: 'input',
+          //name: 'userNames',
+          name: val,
+          //message: 'new name for ' + val + ' (current: ' this.defaultArtifactNames[val] + '):'
+          //message: 'new name for ' + this.defaultArtifactNames[val]
+          message: 'new name for ' + this.globals.MAIN_SERVICE + ' service:',
+        });
+       }.bind(this));//.(this));
+      //};      this.prompt(prompts, function(props) {
+      this.prompt(prompts, function(answers) {
+        this.userNames = {};
+        this.userNames.services = {};
+        
+        Object.keys(answers).forEach(function (key, index, array){
+          switch(key) {
+          case 'mainService':
+            this.userNames.services.mainService = answers.mainService;
+            this.props.userNames.services.main = answers.mainService;
+            break;
+          // case 'baseService':
+          //   this.artifacts.services.base = props.baseService;
+          //   break;
+          // case 'utilsService':
+          //   this.artifacts.services.utils = props.utilsService;
+          //   break;
+          // case 'custController':
+          //   this.artifacts.controllers.cust = props.custController;
+          //   break;
+          // case 'canvasKeysDirective':
+          //   this.artifacts.directives.canvasKeys = props.canvasKeysDirective;
+          //   break;
+          default:
+            this.log('switch: found unknown key:' + key);
+          }
+
+        }.bind(this));
+        
+        done();
+       }.bind(this));
+    // },
+     },
+      },
+      
+      
   default: function () {    
+    console.log('app:this.artifactsToRename=', this.artifactsToRename);
+    console.log('app:this.userNames=', this.userNames);
     if (true) {
 
       this.composeWith('vr-base:sub-angular',{
-        options: this.props
+        options: this.props,
+        userNames: this.userName,
       },
        {
         local: require.resolve('../sub-angular')

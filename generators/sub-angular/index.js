@@ -77,13 +77,17 @@ module.exports = AngVrBase.extend({
   initializing: function () {    
     this._initGlobals();
 
+    console.log('subAngular.initializing: this.props=', this.props);
+    console.log('subAngular.initializing: this.options=', this.options);
+    console.log('subAngular.initializing: this.options.userNames.services.main=', this.options.userNames.services.main);
+    return;
     // we need to create a partial file that is the same name as the appName.  We
     // have to dynamically create this at runtime, since we don't know the app name
     // until the user supplies it via prompts.
-    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
-    var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
-
-    this.fs.copy(mainFilePath, vrAppFilePath);
+//vt    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
+//vt    var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
+//vt
+//vt    this.fs.copy(mainFilePath, vrAppFilePath);
 
   },
 
@@ -110,7 +114,8 @@ module.exports = AngVrBase.extend({
   createAngularServices: function () {
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       this.composeWith('angular:service',  {
-        args: [ this.artifacts.services[key] ],
+        //vtargs: [ this.artifacts.services[key] ],
+        args: [ this.options.userNames.services[ this.artifacts.services[key] ]],
 
       } );
       
@@ -147,7 +152,7 @@ module.exports = AngVrBase.extend({
     {
       // the updated at tag indicates if we've touched this controller before      
 
-      var tagRegex = new RegExp('^\/\/' + '\\s*' + this.globals.fileUpdatedTag, 'm');
+      var tagRegex = new RegExp('^\/\/' + '\\s*' + this.globals.fileupdatedtag, 'm');
 
       if (tagRegex.test(fileContents)) {
         // found tag, return without doing anything
@@ -273,8 +278,9 @@ module.exports = AngVrBase.extend({
   markupArtifacts: function () {
     // services
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
-      var filePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
-      
+      //vtvar filePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
+      var filePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ] + '.js'); 
+
       this._markupFile(filePath);
     }.bind(this));
     
@@ -297,7 +303,8 @@ module.exports = AngVrBase.extend({
     this._injectDependencies(controllerPath, 'controller', [this.artifacts.services.main]);
 
     // services
-    var servicePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services['main'] ] + '.js');    
+    //vtvar servicePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services['main'] ] + '.js');    
+    var servicePath = this.destinationPath('app/scripts/services/' +  this.options.userNames.services['main']+ '.js');    
     
     this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
 
@@ -316,7 +323,8 @@ module.exports = AngVrBase.extend({
   partialsInjection: function () {
 
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
-      var templatePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
+      //vtvar templatePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
+      var templatePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ]  + '.js');
       var partialsPath = this.templatePath('../partials/services/' + [ this.artifacts.services[key] ] + '.js');
 
       var partialContents = this.fs.read(partialsPath);
@@ -413,7 +421,8 @@ module.exports = AngVrBase.extend({
   writing: function () {    
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/services/' +
-                                              [ this.artifacts.services[key] ] + '.js');
+                                              //vt[ this.artifacts.services[key] ] + '.js');
+            this.options.userNames.services[ this.artifacts.services[key] ] + '.js' );
 
       this.fs.copyTpl(
         templatePath,
