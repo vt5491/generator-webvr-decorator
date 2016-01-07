@@ -32,28 +32,28 @@ module.exports = AngVrBase.extend({
     this.defaultArtifactNames.baseService = 'base';
     this.defaultArtifactNames.utilsService = 'utils';
     
-    // controllers
-    // note: main controller is gen'd by the angular generator, so we need to be
+    // ctrls
+    // note: main ctrl is gen'd by the angular generator, so we need to be
     // careful to not re-generate it again.  We need it in this list, however, because
     // we will modify it.
-    // we should be able to get rid of main controllers once vrAppController is worked out.
-    this.defaultArtifactNames.mainController = 'main'; 
+    // we should be able to get rid of main ctrls once vrAppCtrl is worked out.
+    this.defaultArtifactNames.mainCtrl = 'main'; 
     
-    if (typeof this.options !== 'undefined' && typeof this.options.appName !== 'undefined'){
-      this.defaultArtifactNames.vrAppController = this.options.appName;
-    }
-    else {
-      this.defaultArtifactNames.vrAppController = 'vrapp';
-    }
+    // if (typeof this.options !== 'undefined' && typeof this.options.appName !== 'undefined'){
+    //   this.defaultArtifactNames.vrAppController = this.options.appName;
+    // }
+    // else {
+    //   this.defaultArtifactNames.vrAppController = 'vrapp';
+    // }
 
-    this.defaultArtifactNames.custController = 'cust';
+    this.defaultArtifactNames.custCtrl = 'cust';
 
     // directives
     this.defaultArtifactNames.canvasKeysDirective = 'canvasKeys';
     
     this.artifacts = {};
     this.artifacts.services = {};
-    this.artifacts.controllers = {};
+    this.artifacts.ctrls = {};
     this.artifacts.directives = {};
     
     // initialize service names
@@ -62,68 +62,31 @@ module.exports = AngVrBase.extend({
     this.artifacts.services.base = this.defaultArtifactNames.baseService;
     this.artifacts.services.utils = this.defaultArtifactNames.utilsService;
 
-    // initialize controller names
-    this.artifacts.controllers.main = this.defaultArtifactNames.mainController;
-    this.artifacts.controllers.vrapp = this.defaultArtifactNames.vrAppController;
-    this.artifacts.controllers.cust = this.defaultArtifactNames.custController;
+    // initialize ctrl names
+    this.artifacts.ctrls.main = this.defaultArtifactNames.mainCtrl;
+    // this.artifacts.controllers.vrapp = this.defaultArtifactNames.vrAppController;
+    // TODO: add support for cust ctrl later
+    //this.artifacts.ctrls.cust = this.defaultArtifactNames.custCtrl;
     
     // initialize directive names
     this.artifacts.directives.canvasKeys = this.defaultArtifactNames.canvasKeysDirective;
-    
-    //this.skipInstall = true;
-    //vt-xthis.skipInstall = this.options.skipInstall;
-    //this.skipInstall = false;    
-    //vt-x
-    console.log('subAngular._globals: this.options a=', this.options);
-    //this.options.userNames = this.options.services;
-    this.options.abc = 17; // cant add
-    console.log('subAngular._globals: this.options b=', this.options);
-    //console.log('sub: this.userNames=', this.userNames);
-      
-    //vt-x end
-  //}.bind(this),
   },
 
   initializing: function () {    
-    console.log('subAngular.initializing: this.userNames=', this.userNames);
-    this._initGlobals();
-    this.options.def = 18; //cant add
-
-    console.log('subAngular.initializing: this.props=', this.props);
     console.log('subAngular.initializing: this.options=', this.options);
-    console.log('subAngular.initializing: this.options.userNames.services=', this.options.userNames.services);
-    //console.log('subAngular.initializing: this.options.userNames.services.main=', this.options.userNames.services.main);
+    this._initGlobals();
+
     return;
-    // we need to create a partial file that is the same name as the appName.  We
-    // have to dynamically create this at runtime, since we don't know the app name
-    // until the user supplies it via prompts.
-    var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
-    // creating the vrapp at runtime causes write errors from the generator when running as an 'official'
-    // generator (from npm).  Since we currently do not need this comment this out
-    // var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
+    // // we need to create a partial file that is the same name as the appName.  We
+    // // have to dynamically create this at runtime, since we don't know the app name
+    // // until the user supplies it via prompts.
+    // var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
+    // // creating the vrapp at runtime causes write errors from the generator when running as an 'official'
+    // // generator (from npm).  Since we currently do not need this comment this out
+    // // var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
 
-    // this.fs.copy(mainFilePath, vrAppFilePath);
+    // // this.fs.copy(mainFilePath, vrAppFilePath);
   },
-
-  
-  // prompting: function () {
-  //   var done = this.async();
-
-  //   var prompts = [{
-  //     type: 'confirm',
-  //     name: 'someOption',
-  //     message: 'sub-angular: Would you like to enable this option?',
-  //     default: true
-  //   }];
-
-  //   this.prompt(prompts, function (props) {
-  //     this.props = props;
-  //     // To access props later use this.props.someOption;
-
-  //     done();
-  //   }.bind(this));
-
-  // },
 
   createAngularServices: function () {
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
@@ -132,34 +95,39 @@ module.exports = AngVrBase.extend({
         args: [ this.options.userNames.services[ this.artifacts.services[key] ]],
 
       } );
-      
     }.bind(this));    
   },
 
-  createAngularControllers: function () {
-    Object.keys(this.artifacts.controllers).forEach( function (key, index, array) {      
+  createAngularCtrls: function () {
+    Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {      
       // the 'main' controller is already pre-defined in a standard angular app.  Thus
       // we want to skip creating this controller anew.
-      if( key === 'main') {
-        return;
-      };
+//vt-x      if( key === 'main') {
+//vt-x        return;
+//vt-x      };
       
-      this.composeWith('angular:controller',  {args: [ this.artifacts.controllers[key] ]} );
-      
+      //this.composeWith('angular:controller',  {args: [ this.artifacts.controllers[key] ]} );
+      console.log('createAngularCtrls: key=', key);
+      console.log('createAngularCtrls: this.artifacts.ctrls=', this.artifacts.ctrls);
+      console.log('createangularctrls: this.options.userNames=', this.options.userNames);
+      console.log('createangularctrls: args=', this.options.userNames.ctrls[key]);
+      //this.composeWith('angular:ctrl',  {args: [ this.options.userNames.ctrls[this.artifacts.ctrls[key]] ]} );
+      this.composeWith('angular:controller',  {args: [ this.options.userNames.ctrls[ key]]});
+      //this.composeWith('angular:ctrl',  {args: ['main2'] });
     }.bind(this));    
   },
 
   createAngularDirectives: function () {
     //directiveLoop:
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {      
-      this.composeWith('angular:directive',  {args: [ this.artifacts.directives[key] ]} ); 
+      //this.composeWith('angular:directive',  {args: [ this.artifacts.directives[key] ]} ); 
+      this.composeWith('angular:directive',  {args: [ this.options.userNames.directives[key] ]} ); 
     }.bind(this));    
   },
   
   // helper method
   _markupFile: function (filePath) { 
     var fileContents = this.fs.read(filePath);
-
     // if this is the 'main' controller and we've already updated it, don't
     // add a '<%= partial %>' tag, as this will just create repeats
     if (/controllers\/main.js/.test(filePath))
@@ -298,34 +266,53 @@ module.exports = AngVrBase.extend({
       this._markupFile(filePath);
     }.bind(this));
     
-    // controllers
-    Object.keys(this.artifacts.controllers).forEach( function (key, index, array) {
-      var filePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.controllers[key] ] + '.js');
+    // ctrls
+    Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
+      //var filePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
+      var filePath = this.destinationPath('app/scripts/controllers/' + [this.options.userNames.ctrls[this.artifacts.services[key]] ] + '.js');
+      console.log('ctrlMarkup: filePath=', filePath);
       this._markupFile(filePath);
     }.bind(this));
 
     // directives
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
-      var filePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      //var filePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      var filePath = this.destinationPath('app/scripts/directives/' + [ this.options.userNames.directives[this.artifacts.directives[key]] ] + '.js');
       
       this._markupFile(filePath);
     }.bind(this));
     
-    // inject mainService into vrAppController dependencies
-    var controllerPath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.controllers['main'] ] + '.js');
+    // inject mainService into mainCtrl dependencies
+    var controllerPath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls['main'] ] + '.js');
         
-    this._injectDependencies(controllerPath, 'controller', [this.artifacts.services.main]);
+    this._injectDependencies(controllerPath, 'ctrl', [this.artifacts.services.main]);
 
     // services
     //vtvar servicePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services['main'] ] + '.js');    
     var servicePath = this.destinationPath('app/scripts/services/' +  this.options.userNames.services['main']+ '.js');    
     
-    this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
-
+    //this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
+    this._injectDependencies(servicePath, 'service', [
+      '$window',
+      this.options.userNames.services['base'],
+      this.options.userNames.services['utils'],]);
+//vt add
+    //this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.utils]);
+//vt end
     // directives
-    var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'].toLowerCase() ] + '.js');
+    //var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'] ] + '.js');
+    var directivePath = this.destinationPath('app/scripts/directives/' +
+[ this.options.userNames.directives['canvasKeys']] + '.js');
+      console.log('injectDeps-directives: directivePath=', directivePath);
+      //console.log('injectDeps-directives: key=', key);
+      console.log('injectDeps-directives: userNames=', this.options.userNames);
     
-    this._injectDependencies(directivePath, 'directive', ['$document', '$rootScope', this.artifacts.services.main, this.artifacts.services.base]);
+    //this._injectDependencies(directivePath, 'directive', ['$document', '$rootScope', this.artifacts.services.main, this.artifacts.services.base]);
+    this._injectDependencies(directivePath, 'directive', [
+      '$document',
+      '$rootScope',
+      this.options.userNames.services.main,
+      this.options.userNames.services.base]);
 
     // comment out the prior angular stub code    
     var regex = /(^\s*return\s*\{[^\}]*\}.*\n^.*\};)/m; 
@@ -356,9 +343,10 @@ module.exports = AngVrBase.extend({
       
     }.bind(this));
 
-    Object.keys(this.artifacts.controllers).forEach( function (key, index, array) {
-      var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.controllers[key] ] + '.js');
-      var partialsPath = this.templatePath('../partials/controllers/' + [ this.artifacts.controllers[key] ] + '.js');
+    Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
+      //var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
+      var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.options.userNames.ctrls[ this.artifacts.ctrls[key]] ] + '.js');
+      var partialsPath = this.templatePath('../partials/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
 
       var partialContents = this.fs.read(partialsPath);
 
@@ -374,7 +362,8 @@ module.exports = AngVrBase.extend({
     }.bind(this));    
 
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
-      var templatePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      //var templatePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+      var templatePath = this.destinationPath('app/scripts/directives/' + [ this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase() ] + '.js');
       var partialsPath = this.templatePath('../partials/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
 
       var partialContents = this.fs.read(partialsPath);
@@ -447,24 +436,14 @@ module.exports = AngVrBase.extend({
       );
     }.bind(this));
 
-    Object.keys(this.artifacts.controllers).forEach( function (key, index, array) {
+    Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/controllers/' +
-                                              [ this.artifacts.controllers[key] ] + '.js');
-      
-      this.fs.copyTpl(
-        templatePath,
-        templatePath, {
-          name: key,
-          appName: this.options.appName,
-          'main-service': this.artifacts.services.main,
-          mainService: this.artifacts.services.main,
-        }
-      );
-    }.bind(this));
-
-    Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
-      var templatePath = this.destinationPath('app/scripts/directives/' +
-                                              [ this.artifacts.directives[key].toLowerCase() ] + '.js');
+                                              //[ this.artifacts.ctrls[key] ] + '.js');
+            [ this.options.userNames.ctrls[this.artifacts.ctrls[key]] ] + '.js');
+            //[ this.options.userNames.ctrls['canvasKeys'] ] + '.js');
+      console.log('templateInsertion: templatePath=', templatePath);
+      console.log('templateInsertion: mainService=', this.options.userNames.services['main']);
+      console.log('templateInsertion: userNames=', this.options.userNames);
       
       this.fs.copyTpl(
         templatePath,
@@ -472,8 +451,30 @@ module.exports = AngVrBase.extend({
           name: key,
           appName: this.options.appName,
           //'main-service': this.artifacts.services.main,
-          mainService: this.artifacts.services.main,
-          baseService: this.artifacts.services.base,
+          //mainService: this.artifacts.services.main,
+          mainService: this.options.userNames.services['main'],
+        }
+      );
+    }.bind(this));
+
+    Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
+      var templatePath = this.destinationPath('app/scripts/directives/' +
+                                              //[ this.artifacts.directives[key].toLowerCase() ] + '.js');
+[ this.options.userNames.directives[this.artifacts.directives[key]] ] + '.js');
+      console.log('templateInsertion-directives: templatePath=', templatePath);
+      console.log('templateInsertion-directives: key=', key);
+      console.log('templateInsertion-directives: userNames=', this.options.userNames);
+      
+      this.fs.copyTpl(
+        templatePath,
+        templatePath, {
+          name: key,
+          appName: this.options.appName,
+          //'main-service': this.artifacts.services.main,
+          // mainService: this.artifacts.services.main,
+          // mainService: this.artifacts.services.main,
+          mainService: this.options.userNames.services['main'],
+          baseService: this.options.userNames.services['base']
         }
       );
     }.bind(this));

@@ -55,7 +55,7 @@ module.exports = AppBase.extend({
 //      this.log(yosay(
 //        'welcome to the sweet 2' + chalk.red('webvrdecorator') + ' generator!'
 //      ));
-      initialPrompt: function () {
+    initialPrompt: function () {
       var prompts = [];
       var done = this.async();
       
@@ -66,25 +66,33 @@ module.exports = AppBase.extend({
       //   message: 'what is your app\'s name [webvrapp] ?'
       // });
 
-//vt      prompts.push( {
-//vt        type: 'confirm',      
-//vt        name: 'continue',
-//vt        default: 'true',
-//vt        message: 'do you want to add webvr capability to this application ?'
-//vt      });
+      //vt      prompts.push( {
+      //vt        type: 'confirm',      
+      //vt        name: 'continue',
+      //vt        default: 'true',
+      //vt        message: 'do you want to add webvr capability to this application ?'
+      //vt      });
 
-    prompts.push( {
-      type: 'confirm',      
-      name: 'continue',
-      default: 'true',
-      message: 'Add webVR capability to this application ?'
-    });
+      prompts.push( {
+        type: 'confirm',      
+        name: 'continue',
+        default: 'true',
+        message: 'Add webVR capability to this application ?'
+      });
 
       prompts.push( {
         type: 'checkbox',
         name: 'artifactsToRename',
-        message: 'please specify any name you wish to override:',
+        message: 'please specify any name you wish to override, or just press ENTER to accept the defaults:',
         choices: [
+          {
+            value: new inquirer.Separator("--- controllers ---")
+          },
+          {
+            value: 'mainCtrl',
+            name: this.globals.MAIN_CTRL,
+            checked: false
+          },
           {
             value: new inquirer.Separator("--- services ---")
           },
@@ -93,88 +101,130 @@ module.exports = AppBase.extend({
             name: this.globals.MAIN_SERVICE,
             checked: false
           },
+          {
+            value: 'baseService',
+            name: this.globals.BASE_SERVICE,
+            checked: false
+          },
+          {
+            value: 'utilsService',
+            name: this.globals.UTILS_SERVICE,
+            checked: false
+          },
+          {
+            value: new inquirer.Separator("--- directives ---")
+          },
+          {
+            value: 'canvasKeysDirective',
+            name: this.globals.CANVAS_KEYS_DIRECTIVE,
+            checked: false
+          },
         ]
       });
 
       this.prompt(prompts, function (answers) {
-        console.log('answers=', answers);
-        console.log('answers=', answers);
+        // console.log('answers=', answers);
+        // console.log('answers=', answers);
         this.props = answers;
-        console.log('this.props=', this.props);
+        // console.log('this.props=', this.props);
         //this.appName = answers.appName;      
         //vt add
         this.props.userNames = {};
+        // ctrls
+        this.props.userNames.ctrls = {};
+        this.props.userNames.ctrls.main = 'main';
+        //services
         this.props.userNames.services = {};
-        this.props.userNames.services.main = 'main3';
+        this.props.userNames.services.main = 'main';
         this.props.userNames.services.base = 'base';
         this.props.userNames.services.utils = 'utils';
+        this.props.userNames.ctrls = {};
+        // directives
+        this.props.userNames.directives = {};
+        this.props.userNames.directives.canvasKeys = 'canvaskeys';
         
         //this.artifactsToRename = props.artifactsToRename;
         this.artifactsToRename = answers.artifactsToRename;
         //vt-x start
         console.log('now calling done');
-          done();
+        done();
         console.log('now back from done');
         //vt-x end
         //vt end
-        }.bind(this));
-
+      }.bind(this));
+    },           
     
-    // this.prompt(prompts, function (answers) {
-    //   this.props = answers;
-    //   //this.appName = answers.appName;      
-
-    //   if (!answers.continue) {
-    //     console.log('Exiting install');
-    //     return;
-    //   }
-    //   else {
-    //     console.log('Continuing with install');
-    //     done();
-    //   }
-    // }.bind(this));
-     },           
-    //}
     renameArtifactsPrompt: function() {
       var done = this.async();
       
       var prompts = [];
       
-      this.artifactsToRename.forEach(function (val, index, array) {
-      //for (var i =0; i < this.artifactsToRename.length; i++) {
+      // console.log('renameArtifactsprompt: artifactsTorename=', this.artifactsToRename);
+      // console.log('typeof artifactsTorename=', typeof(this.artifactsToRename));
+      // console.log('typeof artifactsTorename.length=', this.artifactsToRename.length);
+      //this.artifactsToRename.forEach(function (val, index, array) {
+      for (var i =0; i < this.artifactsToRename.length; i++) {
+        var val = this.artifactsToRename[i];
         //debugger;
+        if (typeof(val) !== 'string') {
+          // skip the separator lines if they are selected
+          continue;
+        }; 
+
+        var type;
+
+        if (/ctrl$/i.exec(val)){
+          type = 'ctrl';
+        }
+        else if (/service$/i.exec(val)){
+          type = 'service';
+        }
+        else if (/directive$/i.exec(val)){
+          type = 'directive';
+        }
+
         prompts.push( {
           type: 'input',
           //name: 'userNames',
           name: val,
           //message: 'new name for ' + val + ' (current: ' this.defaultArtifactNames[val] + '):'
           //message: 'new name for ' + this.defaultArtifactNames[val]
-          message: 'new name for ' + this.globals.MAIN_SERVICE + ' service:',
+          //message: 'new name for ' + this.globals.MAIN_SERVICE + ' service:',
+          message: 'new name for ' + this.globals.artifactNameLookup[val] + ' ' + type + ':',
         });
-       }.bind(this));//.(this));
-      //};      this.prompt(prompts, function(props) {
+       };
+
       this.prompt(prompts, function(answers) {
         this.userNames = {};
         this.userNames.services = {};
+        this.userNames.ctrls = {};
         
         Object.keys(answers).forEach(function (key, index, array){
           switch(key) {
+          case 'mainCtrl':
+            //this.userNames.controllers.mainController = answers.mainController;
+            this.props.userNames.ctrls.main = answers.mainCtrl;
+            break;
           case 'mainService':
-            this.userNames.services.mainService = answers.mainService;
+            //this.userNames.services.mainService = answers.mainService;
             this.props.userNames.services.main = answers.mainService;
             break;
-          // case 'baseService':
-          //   this.artifacts.services.base = props.baseService;
-          //   break;
-          // case 'utilsService':
-          //   this.artifacts.services.utils = props.utilsService;
-          //   break;
-          // case 'custController':
-          //   this.artifacts.controllers.cust = props.custController;
-          //   break;
-          // case 'canvasKeysDirective':
-          //   this.artifacts.directives.canvasKeys = props.canvasKeysDirective;
-          //   break;
+          case 'baseService':
+            //this.artifacts.services.base = props.baseService;
+            this.props.userNames.services.base = answers.baseService;
+            break;
+          case 'utilsService':
+            //this.artifacts.services.utils = props.utilsService;
+            this.props.userNames.services.utils = answers.utilsService;
+            break;
+          case 'custCtrl':
+            //this.artifacts.controllers.cust = props.custController;
+            this.props.userNames.services.cust = answers.custService;
+            break;
+          case 'canvasKeysDirective':
+            //this.artifacts.directives.canvasKeys = props.canvasKeysDirective;
+            this.props.userNames.directives.canvasKeys = answers.canvasKeysDirective;
+            break;
           default:
             this.log('switch: found unknown key:' + key);
           }
@@ -189,9 +239,9 @@ module.exports = AppBase.extend({
       
       
   default: function () {    
-    console.log('app:this.artifactsToRename=', this.artifactsToRename);
-    console.log('app:this.userNames=', this.userNames);
-    console.log('app:default: props=', this.props);
+    // console.log('app:this.artifactsToRename=', this.artifactsToRename);
+    // console.log('app:this.userNames=', this.userNames);
+    // console.log('app:default: props=', this.props);
     //this.props.userNames = {};
     //this.props.userNames = this.userNames;
     if (true) {

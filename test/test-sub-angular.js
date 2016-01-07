@@ -14,6 +14,9 @@ var helpers = require('yeoman-generator').test;
 var generators = require('yeoman-generator').generators;
 var os = require('os');
 var common = require('../lib/common.js');
+//vt add
+var _ = require('lodash');
+//vt end
 
 var common_ut = require('./test-lib-common.js');
 
@@ -64,8 +67,9 @@ describe('angular-vr-base:app end to end', function () {
       .withGenerators([
         [angularServiceDummy, 'angular:service'],
         [angularControllerDummy, 'angular:controller'],
-        [angularDirectiveDummy, 'angular:directive']
+        [angularDirectiveDummy, 'angular:directive'],
       ])
+      .withPrompts({'continue': 'y', 'artifactsToRename': []})
       .on('ready', function (gen) {        
         gen.fs.write('app/scripts/controllers/main.js', '//dummy-line\n  });\n');
         // we need to mock a dummy bower.json
@@ -127,14 +131,30 @@ describe('angular-vr-base:individual methods', function () {
 
     artifacts.controllers.main = 'main';
       
+    //vt add
+    var userNames = {};
+    userNames.services = {};
+    
+    userNames.services.main = 'main'; 
+    userNames.services.base = 'base'; 
+    userNames.services.utils = 'utils'; 
+    //vt end
     subAngularGenerator = helpers.createGenerator('webvr-decorator:sub-angular', [
       path.join(__dirname, '../generators/sub-angular')
       ],
       null,
-     {'artifacts': artifacts, appName: APP_NAME
-     }
-    );
+     {'artifacts': artifacts, appName: APP_NAME, userNames: userNames,
+  //'globals.fileupdatedtag': 'webvr-decorator-> file updated on: ',
+     });
 
+    //subAngularGenerator.globals.fileupdatedtag = 'webvr-decorator-> file updated on: ';
+    subAngularGenerator.globals.fileupdatedtag = common.globals.fileUpdatedTag;
+
+    //vt add
+    // mixin common class
+    _.extend(subAngularGenerator.prototype, require('../lib/common.js'));
+
+    //vt end
     artifacts.directives.canvasKeys = 'canvasKeys';
     
     // we need to do this to properly feed in options and args
@@ -262,9 +282,10 @@ describe('angular-vr-base:individual methods', function () {
                                    '//' + common.globals.fileUpdatedTag + 'been here already' );
     subAngularGenerator._markupFile(fp);
 
-    // the file should note have a '<%= partial %'> tag
-    // been updated.
+    // the file does not have a '<%= partial %'> tag
+    // because its previously been 'updated'.
     var fileContents = subAngularGenerator.fs.read(fp);
+    console.log('test-sub-angular: fileContents=', fileContents);
     
     assert(!/\<\%\= partial \%\>/m.test(fileContents));    
   });
