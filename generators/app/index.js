@@ -16,6 +16,9 @@ var util = require('util');
 var merge = require('merge'), original, cloned;
 //vt add
 var inquirer = require('inquirer');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+
 //vt end
 
 // helper methods go here
@@ -37,10 +40,33 @@ module.exports = AppBase.extend({
   },
   
   initializing: function() {
+    console.log('app: now in initializing, this.async=', this.async);
     this.props = {};
     this.props = this.options;
     
     this.props.skipinstall = (this.options.skipinstall ? true : false);    
+
+    //vt add
+    // if( !this.async) {
+    //   console.log('app: now creating async function');
+    //   this.async = function() {
+    //       return function() {};
+    //     };
+    // }
+        this.props.userNames = {};
+        // ctrls
+        this.props.userNames.ctrls = {};
+        this.props.userNames.ctrls.main = 'main';
+        //services
+        this.props.userNames.services = {};
+        this.props.userNames.services.main = 'main';
+        this.props.userNames.services.base = 'base';
+        this.props.userNames.services.utils = 'utils';
+        //vt-xthis.props.userNames.ctrls = {};
+        // directives
+        this.props.userNames.directives = {};
+        this.props.userNames.directives.canvasKeys = 'canvasKeys';
+    //vt end
   },
   
   prompting:  {
@@ -56,6 +82,16 @@ module.exports = AppBase.extend({
 //        'welcome to the sweet 2' + chalk.red('webvrdecorator') + ' generator!'
 //      ));
     initialPrompt: function () {
+      //vt add
+      // if( !this.async) {
+      //   console.log('app.initialProm: now creating async function');
+      //   this.async = function() {
+      //     return function() {};
+      //   };
+      // }
+      //console.log('app: now in initialPrompt, this=', this);
+      this.vtAbc = 7;
+      //vt end
       var prompts = [];
       var done = this.async();
       
@@ -124,11 +160,13 @@ module.exports = AppBase.extend({
 
       this.prompt(prompts, function (answers) {
         // console.log('answers=', answers);
-        // console.log('answers=', answers);
-        this.props = answers;
+        console.log('app.prompt: answers=', answers);
+        //vt-xthis.props = answers;
         // console.log('this.props=', this.props);
         //this.appName = answers.appName;      
         //vt add
+        // note: I moved the following assignments to initializing
+        /*
         this.props.userNames = {};
         // ctrls
         this.props.userNames.ctrls = {};
@@ -138,17 +176,18 @@ module.exports = AppBase.extend({
         this.props.userNames.services.main = 'main';
         this.props.userNames.services.base = 'base';
         this.props.userNames.services.utils = 'utils';
-        this.props.userNames.ctrls = {};
+        //vt-xthis.props.userNames.ctrls = {};
         // directives
         this.props.userNames.directives = {};
         this.props.userNames.directives.canvasKeys = 'canvaskeys';
-        
+       */ 
         //this.artifactsToRename = props.artifactsToRename;
         this.artifactsToRename = answers.artifactsToRename;
         //vt-x start
         console.log('now calling done');
         done();
         console.log('now back from done');
+        console.log('app.prompt: this.artifactsToRename=',this.artifactsToRename);
         //vt-x end
         //vt end
       }.bind(this));
@@ -159,6 +198,7 @@ module.exports = AppBase.extend({
       
       var prompts = [];
       
+      console.log('app.renameArtifactsPrompt: this.artifactsToRename=', this.artifactsToRename);
       // console.log('renameArtifactsprompt: artifactsTorename=', this.artifactsToRename);
       // console.log('typeof artifactsTorename=', typeof(this.artifactsToRename));
       // console.log('typeof artifactsTorename.length=', this.artifactsToRename.length);
@@ -194,7 +234,9 @@ module.exports = AppBase.extend({
         });
        };
 
+      console.log('app: prompts=', prompts);
       this.prompt(prompts, function(answers) {
+        console.log('app.prompt2: answers=', answers);
         this.userNames = {};
         this.userNames.services = {};
         this.userNames.ctrls = {};
@@ -244,8 +286,10 @@ module.exports = AppBase.extend({
     // console.log('app:default: props=', this.props);
     //this.props.userNames = {};
     //this.props.userNames = this.userNames;
-    if (true) {
+    //vt-xif (true) {
+    if (!this.options.unitTestRun) {
 
+      //TODO: rename to 'webvrapp:sub-angular'
       this.composeWith('vr-base:sub-angular',{
         options: this.props,
         //options: this.userNames,
@@ -268,12 +312,13 @@ module.exports = AppBase.extend({
     // would have to manually insert lines into bower.json, and then rely on the
     // parent installDependencies() to install.  But there's a lot of use cases between
     // people who are installing over a previous angular, and those installing angual and
-    // the vr-decoorator in swoop, and it's easist to just surgically add them here.
+    // the vr-decoorator in one fell swoop, and it's easist to just surgically add them here.
     // Note: the official three.js bower lib is 'threejs' (no period).  There *is*
     // a 'three.js' bower, but it's not the official and does not include other
     // artifacts like examples.  Thus we want 'threejs' and not 'three.js'.  Even if
     // they have 'three.js', we need the full 'threejs' install.
     //if(!(tgtJson.dependencies['threejs'] || tgtJson.dependencies['three.js'])) {
+    console.log('app:install: this.options.skipIinstall=', this.options.skipInstall);
     
     if(!this.options.skipInstall) {
       // first read the existing bower.json and see what's already installed
@@ -293,9 +338,12 @@ module.exports = AppBase.extend({
       };
 
     };
+    eventEmitter.emit('end');
+    console.log('at end of install');
   },
  
   end: function () {
     this.log('webvr-decorator: all done');
+    console.log('webvr-decorator: all done');
   }
 });

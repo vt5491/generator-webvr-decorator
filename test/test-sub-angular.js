@@ -25,7 +25,41 @@ var common_ut = require('./test-lib-common.js');
 describe('angular-vr-base:app end to end', function () {
 
    beforeEach(function (done) {
+    var artifacts = {};
+    artifacts.services = {};
+
+     //vt add
+    var artifacts = {};
+      
+    artifacts.services = {};
+    //vtartifacts.controllers = {};
+    artifacts.ctrls = {};
+    artifacts.directives = {};
     
+    artifacts.services.main = 'main';
+    artifacts.services.base = 'base';
+
+    //artifacts.controllers.main = 'main';
+    artifacts.ctrls.main = 'main';
+      
+    //vt add
+    var userNames = {};
+    userNames.services = {};
+    
+    userNames.services.main = 'main'; 
+    userNames.services.base = 'base'; 
+    userNames.services.utils = 'utils'; 
+    
+    userNames.ctrls = {};
+    userNames.ctrls.main = 'main'; 
+     //vt end
+     // //vt add
+     // var options = {};
+     // options.userNames = {};
+     // options.userNames.ctrls = {};
+     // options.userNames.ctrls.main = 'main';
+     // //vt end
+
     // create a mock angular generator
     var angularServiceDummy = generators.Base.extend({
       
@@ -37,6 +71,9 @@ describe('angular-vr-base:app end to end', function () {
     });
 
     var angularControllerDummy = generators.Base.extend({
+      //vt add
+      //options: {userNames: {ctrls: 'abc'}},
+      //vt end
       
       initializing: function () {        
         // write a line to simulate ending of an angular controller
@@ -45,6 +82,9 @@ describe('angular-vr-base:app end to end', function () {
         this.fs.write(fn, '//dummy-line\n  });\n');
       }
     });
+     //vt add
+     //angularControllerDummy.args = { options: {userNames: {ctrls: {main: 'main'}}}};
+     //vt end
 
     var angularDirectiveDummy = generators.Base.extend({
       
@@ -56,12 +96,13 @@ describe('angular-vr-base:app end to end', function () {
     });
      
      
-    var artifacts = {};
-    artifacts.services = {};
-
     this.angVrBaseAppRunContext = helpers.run(path.join(__dirname, '../generators/app'))
       .withOptions({ skipInstall: true,
                      name: 'def',
+                     //vt add
+                     //userNames: {ctrls: ''},
+                     'artifacts': artifacts,  userNames: userNames,
+                    //vt end
                    })
       .withArguments(['defg' ])
       .withGenerators([
@@ -91,11 +132,20 @@ describe('angular-vr-base:app end to end', function () {
 
   it('creates controller files', function () {
     assert.file([
-      'app/scripts/controllers/cust.js',
+      //'app/scripts/controllers/cust.js',
+      'app/scripts/controllers/main.js',
     ]);
 
   });
 
+  //vt add
+  // it('creates directive files', function () {
+  //   assert.file([
+  //     'app/scripts/directives/canvaskeys.js',
+  //   ]);
+  // });
+
+  //vt end
   it('updates main.html in views', function () {    
     assert.file([
       'app/views/main.html',
@@ -123,13 +173,15 @@ describe('angular-vr-base:individual methods', function () {
     var artifacts = {};
       
     artifacts.services = {};
-    artifacts.controllers = {};
+    //vtartifacts.controllers = {};
+    artifacts.ctrls = {};
     artifacts.directives = {};
     
     artifacts.services.main = 'main';
     artifacts.services.base = 'base';
 
-    artifacts.controllers.main = 'main';
+    //artifacts.controllers.main = 'main';
+    artifacts.ctrls.main = 'main';
       
     //vt add
     var userNames = {};
@@ -138,6 +190,12 @@ describe('angular-vr-base:individual methods', function () {
     userNames.services.main = 'main'; 
     userNames.services.base = 'base'; 
     userNames.services.utils = 'utils'; 
+    
+    userNames.ctrls = {};
+    userNames.ctrls.main = 'main'; 
+
+    userNames.directives = {};
+    userNames.directives.canvasKeys = 'canvasKeys'; 
     //vt end
     subAngularGenerator = helpers.createGenerator('webvr-decorator:sub-angular', [
       path.join(__dirname, '../generators/sub-angular')
@@ -187,6 +245,7 @@ describe('angular-vr-base:individual methods', function () {
     var result = subAngularGenerator._initGlobals();
 
     assert.equal(subAngularGenerator.artifacts.services.main, subAngularGenerator.defaultArtifactNames.mainService);
+    //console.log('vt:sub-angular: _initGlobal: subAngularGenerator._initGlobals=', subAngularGenerator._initGlobals);
   });
   
   it('vr-base generator is an instance variable', function () {

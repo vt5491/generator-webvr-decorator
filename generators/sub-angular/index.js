@@ -107,12 +107,18 @@ module.exports = AngVrBase.extend({
 //vt-x      };
       
       //this.composeWith('angular:controller',  {args: [ this.artifacts.controllers[key] ]} );
-      console.log('createAngularCtrls: key=', key);
-      console.log('createAngularCtrls: this.artifacts.ctrls=', this.artifacts.ctrls);
-      console.log('createangularctrls: this.options.userNames=', this.options.userNames);
-      console.log('createangularctrls: args=', this.options.userNames.ctrls[key]);
+      // console.log('createAngularCtrls: key=', key);
+      // console.log('createAngularCtrls: this.artifacts.ctrls=', this.artifacts.ctrls);
+      // console.log('createangularctrls: this.options.userNames=', this.options.userNames);
+      // console.log('createangularctrls: args=', this.options.userNames.ctrls[key]);
       //this.composeWith('angular:ctrl',  {args: [ this.options.userNames.ctrls[this.artifacts.ctrls[key]] ]} );
+      try {
+
       this.composeWith('angular:controller',  {args: [ this.options.userNames.ctrls[ key]]});
+      }
+      catch (e) {
+        console.log('caught error ' + e + 'when calling composeWith-angular:controller');
+      }
       //this.composeWith('angular:ctrl',  {args: ['main2'] });
     }.bind(this));    
   },
@@ -121,6 +127,11 @@ module.exports = AngVrBase.extend({
     //directiveLoop:
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {      
       //this.composeWith('angular:directive',  {args: [ this.artifacts.directives[key] ]} ); 
+      //TODO: you want to make sure the directive name is 'canvasKeys' (camel case)
+      // and not all lower case.  This is because the directive need to be camel case
+      // internally.  Your choices are to use something other than userNames (which defualts
+    // to all lc, or chang userNames to be camel case.  If you do the latter make sure
+    // it doesn't break any thing else)
       this.composeWith('angular:directive',  {args: [ this.options.userNames.directives[key] ]} ); 
     }.bind(this));    
   },
@@ -261,7 +272,7 @@ module.exports = AngVrBase.extend({
     // services
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       //vtvar filePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
-      var filePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ] + '.js'); 
+      var filePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase() + '.js'); 
 
       this._markupFile(filePath);
     }.bind(this));
@@ -269,7 +280,7 @@ module.exports = AngVrBase.extend({
     // ctrls
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
       //var filePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
-      var filePath = this.destinationPath('app/scripts/controllers/' + [this.options.userNames.ctrls[this.artifacts.services[key]] ] + '.js');
+      var filePath = this.destinationPath('app/scripts/controllers/' + this.options.userNames.ctrls[this.artifacts.ctrls[key]].toLowerCase()  + '.js');
       console.log('ctrlMarkup: filePath=', filePath);
       this._markupFile(filePath);
     }.bind(this));
@@ -277,19 +288,24 @@ module.exports = AngVrBase.extend({
     // directives
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
       //var filePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
-      var filePath = this.destinationPath('app/scripts/directives/' + [ this.options.userNames.directives[this.artifacts.directives[key]] ] + '.js');
+      var filePath = this.destinationPath('app/scripts/directives/' +  this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase()  + '.js');
       
       this._markupFile(filePath);
     }.bind(this));
     
     // inject mainService into mainCtrl dependencies
-    var controllerPath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls['main'] ] + '.js');
+    //var controllerPath = this.destinationPath('app/scripts/controllers/' +  this.artifacts.ctrls['main'].toLowerCase() + '.js');
+    var controllerPath = this.destinationPath('app/scripts/controllers/' +  this.options.userNames.ctrls['main'].toLowerCase() + '.js');    
         
-    this._injectDependencies(controllerPath, 'ctrl', [this.artifacts.services.main]);
+    this._injectDependencies(controllerPath, 'controller', [
+      //this.artifacts.services.main
+      this.options.userNames.services['main'],
+    ]);
+    console.log('injectDeP: controllerPath=' + controllerPath + ',service=' + this.options.userNames.services['main']);
 
     // services
     //vtvar servicePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services['main'] ] + '.js');    
-    var servicePath = this.destinationPath('app/scripts/services/' +  this.options.userNames.services['main']+ '.js');    
+    var servicePath = this.destinationPath('app/scripts/services/' +  this.options.userNames.services['main'].toLowerCase() + '.js');    
     
     //this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
     this._injectDependencies(servicePath, 'service', [
@@ -302,7 +318,7 @@ module.exports = AngVrBase.extend({
     // directives
     //var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'] ] + '.js');
     var directivePath = this.destinationPath('app/scripts/directives/' +
-[ this.options.userNames.directives['canvasKeys']] + '.js');
+ this.options.userNames.directives['canvasKeys'].toLowerCase()  + '.js');
       console.log('injectDeps-directives: directivePath=', directivePath);
       //console.log('injectDeps-directives: key=', key);
       console.log('injectDeps-directives: userNames=', this.options.userNames);
@@ -325,8 +341,8 @@ module.exports = AngVrBase.extend({
 
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       //vtvar templatePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
-      var templatePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ]  + '.js');
-      var partialsPath = this.templatePath('../partials/services/' + [ this.artifacts.services[key] ] + '.js');
+      var templatePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase()  + '.js');
+      var partialsPath = this.templatePath('../partials/services/' +  this.artifacts.services[key] + '.js');
 
       var partialContents = this.fs.read(partialsPath);
 
@@ -345,7 +361,7 @@ module.exports = AngVrBase.extend({
 
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
       //var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
-      var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.options.userNames.ctrls[ this.artifacts.ctrls[key]] ] + '.js');
+      var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.options.userNames.ctrls[ this.artifacts.ctrls[key]].toLowerCase() ] + '.js');
       var partialsPath = this.templatePath('../partials/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
 
       var partialContents = this.fs.read(partialsPath);
@@ -425,7 +441,7 @@ module.exports = AngVrBase.extend({
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/services/' +
                                               //vt[ this.artifacts.services[key] ] + '.js');
-            this.options.userNames.services[ this.artifacts.services[key] ] + '.js' );
+            this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase() + '.js' );
 
       this.fs.copyTpl(
         templatePath,
@@ -439,7 +455,7 @@ module.exports = AngVrBase.extend({
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/controllers/' +
                                               //[ this.artifacts.ctrls[key] ] + '.js');
-            [ this.options.userNames.ctrls[this.artifacts.ctrls[key]] ] + '.js');
+            [ this.options.userNames.ctrls[this.artifacts.ctrls[key]].toLowerCase() ] + '.js');
             //[ this.options.userNames.ctrls['canvasKeys'] ] + '.js');
       console.log('templateInsertion: templatePath=', templatePath);
       console.log('templateInsertion: mainService=', this.options.userNames.services['main']);
@@ -460,7 +476,7 @@ module.exports = AngVrBase.extend({
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/directives/' +
                                               //[ this.artifacts.directives[key].toLowerCase() ] + '.js');
-[ this.options.userNames.directives[this.artifacts.directives[key]] ] + '.js');
+[ this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase() ] + '.js');
       console.log('templateInsertion-directives: templatePath=', templatePath);
       console.log('templateInsertion-directives: key=', key);
       console.log('templateInsertion-directives: userNames=', this.options.userNames);
