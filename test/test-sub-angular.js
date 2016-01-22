@@ -16,6 +16,7 @@ var os = require('os');
 var common = require('../lib/common.js');
 //vt add
 var _ = require('lodash');
+var should = require('should');
 //vt end
 
 var common_ut = require('./test-lib-common.js');
@@ -218,6 +219,27 @@ describe('angular-vr-base:individual methods', function () {
     // we need to do this to properly feed in options and args
     subAngularGenerator.initializing();
 
+    //vt add
+    // initialize the options
+    subAngularGenerator.options.userNames = {};
+    // ctrls
+    subAngularGenerator.options.userNames.ctrls = {};
+    subAngularGenerator.options.userNames.ctrls.main = 'main';
+    //services
+    subAngularGenerator.options.userNames.services = {};
+    subAngularGenerator.options.userNames.services.main = 'main';
+    subAngularGenerator.options.userNames.services.base = 'base';
+    subAngularGenerator.options.userNames.services.utils = 'utils';
+    //vt-xsubAngularGenerator.options.userNames.ctrls = {};
+    // directives
+    subAngularGenerator.options.userNames.directives = {};
+    subAngularGenerator.options.userNames.directives.canvasKeys = 'canvasKeys';
+    // subAngularGenerator.options = {};
+    // subAngularGenerator.options.userNames = {};
+    // subAngularGenerator.options.userNames.ctrls = {};
+    // subAngularGenerator.options.userNames.ctrls.main = 'userMain';
+    //vt end
+
     // override the artifacts hash
     subAngularGenerator.artifacts = artifacts;
 
@@ -228,7 +250,7 @@ describe('angular-vr-base:individual methods', function () {
     // we use dummy controller to test parsing
     subAngularGenerator.fs.write('app/scripts/controllers/dummy.js',
         "angular.module('vrsketchApp')\n.controller('MainCtrl', function ($scope) {\n");
-    subAngularGenerator.fs.write('app/scripts/controllers/main.js', '//dummy-line\n  });\n')
+    subAngularGenerator.fs.write('app/scripts/controllers/main.:3js', '//dummy-line\n  });\n')
 ;
     subAngularGenerator.fs.write('app/scripts/directives/canvaskeys.js', '//dummy-line\n  });\n');
 
@@ -291,8 +313,23 @@ describe('angular-vr-base:individual methods', function () {
   });
   
   it('artifacts transformation pipeline', function () {
+    // Note how we only read files via subAngularGenerator.fs.read, because the files
+    // will not get phsically written in the test environment, because they're pointing
+    // toward an app folder that does not exist in the generator's environment (this would 
+    // not be true in an actual runtime environment), and thus we want to read the 'soft' internal
+    // version.
     var result;
-    
+
+    //vt add
+    // we set up some userName specific stuff here to temporarily override the
+    // values setup in the beforeEach
+    // override the name of the main controller for testing purposes
+    var mainCtrl = 'userMain';
+    var mainCtrlClass = 'UserMainCtrl';
+    subAngularGenerator.options.userNames.ctrls.main = mainCtrl;
+
+    subAngularGenerator.fs.write('app/scripts/controllers/' + mainCtrl.toLowerCase() + '.js', '//dummy-line\n  });\n');
+    //vt end
     // markup artifacts
     subAngularGenerator.markupArtifacts();
 
@@ -319,7 +356,8 @@ describe('angular-vr-base:individual methods', function () {
     
     assert(regex.test(result));
 
-    result = subAngularGenerator.fs.read('app/scripts/controllers/main.js');
+    //vtresult = subAngularGenerator.fs.read('app/scripts/controllers/main.js');
+    result = subAngularGenerator.fs.read('app/scripts/controllers/' + mainCtrl.toLowerCase() + '.js');
 
     // is the call to the main service now in the controller file?
     regex = new RegExp(subAngularGenerator.defaultArtifactNames.mainService + '.init');    
@@ -330,6 +368,22 @@ describe('angular-vr-base:individual methods', function () {
     var tagRegex = new RegExp('^\/\/' + '\\s*' + common.globals.fileUpdatedTag, 'm');    
 
     assert(tagRegex.test(result));
+    //vt add
+    // test the main.html file
+    //console.log('test-sub-angular: subAngularGenerator.options=', subAngularGenerator.options);
+    result = subAngularGenerator.fs.read('app/views/' + subAngularGenerator.options.userNames.ctrls.main.toLowerCase() + '.html');
+    console.log('===>test-sub-angular: view result=', result);
+
+    //assert.exist(result);
+    //ng-controller="MonadCtrl"
+    result.should.exist;
+    // assert.file([
+    //   'app/views/main.html',
+    // ]);
+    var ctrlRegex = new RegExp('.*ng-controller="' + mainCtrlClass + '"', 'm');    
+
+    assert(ctrlRegex.test(result));
+    //vt end
   });
 
   // Test the situation where the main.controller has been previously updated by us

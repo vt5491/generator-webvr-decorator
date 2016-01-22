@@ -194,7 +194,7 @@ describe('webvr-decorator:app', function () {
   
   it('initializing sets values appropriately', function () {
     appGenerator.initializing();
-    console.log('appGenerator.props=', appGenerator.props);
+    //console.log('appGenerator.props=', appGenerator.props);
     assert.equal(appGenerator.props.userNames.directives.canvasKeys, 'canvasKeys');
   });
   
@@ -235,7 +235,7 @@ describe('webvr-decorator:app', function () {
 
 //    console.log('===>app=', app);
 //    console.log('===>appGenerator=', appGenerator);
-    console.log('===>app.vtAbc=', app.vtAbc);
-    console.log('---->appGenerator.props2=', appGenerator.props);
+    // console.log('===>app.vtAbc=', app.vtAbc);
+    // console.log('---->appGenerator.props2=', appGenerator.props);
   });
   });

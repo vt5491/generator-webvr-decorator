@@ -40,7 +40,7 @@ module.exports = AppBase.extend({
   },
   
   initializing: function() {
-    console.log('app: now in initializing, this.async=', this.async);
+    //console.log('app: now in initializing, this.async=', this.async);
     this.props = {};
     this.props = this.options;
     
@@ -160,7 +160,7 @@ module.exports = AppBase.extend({
 
       this.prompt(prompts, function (answers) {
         // console.log('answers=', answers);
-        console.log('app.prompt: answers=', answers);
+        //console.log('app.prompt: answers=', answers);
         //vt-xthis.props = answers;
         // console.log('this.props=', this.props);
         //this.appName = answers.appName;      

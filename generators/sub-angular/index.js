@@ -73,7 +73,7 @@ module.exports = AngVrBase.extend({
   },
 
   initializing: function () {    
-    console.log('subAngular.initializing: this.options=', this.options);
+    //console.log('subAngular.initializing: this.options=', this.options);
     this._initGlobals();
 
     return;
@@ -458,7 +458,7 @@ module.exports = AngVrBase.extend({
             [ this.options.userNames.ctrls[this.artifacts.ctrls[key]].toLowerCase() ] + '.js');
             //[ this.options.userNames.ctrls['canvasKeys'] ] + '.js');
       console.log('templateInsertion: templatePath=', templatePath);
-      console.log('templateInsertion: mainService=', this.options.userNames.services['main']);
+      console.log('templateInsertion: mainCtrl=', this.options.userNames.ctrls['main']);
       console.log('templateInsertion: userNames=', this.options.userNames);
       
       this.fs.copyTpl(
@@ -503,9 +503,23 @@ module.exports = AngVrBase.extend({
     this.copyUserLibDir(srcDir, destDir, this);
 
     // copy standard files    
-    this.fs.copy(
+//     this.log('sub-angular:writing: srcPath=', this.templatePath('main.html'));
+    console.log('sub-angular:writing: destPath=', 'app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html');
+    console.log('hi');
+// );
+    // console.log('sub-angular:writing: this.options=', this.options);
+    // console.log('sub-angular:writing: this=', this);
+    //a.charAt(0).toUpperCase() + a.slice(1);
+    // go from 'userMain' to 'UserMainCtrl' 
+    var mainCtrl = this.options.userNames.ctrls.main + 'Ctrl';
+    var mainCtrlClass = mainCtrl.charAt(0).toUpperCase() + mainCtrl.slice(1);
+
+    this.fs.copyTpl(
       this.templatePath('main.html'),
-      this.destinationPath('app/views/main.html')
+      //this.destinationPath('app/views/main.html')
+      //vt add
+      this.destinationPath('app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html'), {mainCtrlClass: mainCtrlClass}
+      //vt end
     );
   },
   
