@@ -290,7 +290,8 @@ module.exports = AppBase.extend({
     if (!this.options.unitTestRun) {
 
       //TODO: rename to 'webvrapp:sub-angular'
-      this.composeWith('vr-base:sub-angular',{
+      //vtthis.composeWith('vr-base:sub-angular',{
+      this.composeWith('webvr:sub-angular',{
         options: this.props,
         //options: this.userNames,
         //userNames: this.userNames,

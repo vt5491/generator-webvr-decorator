@@ -342,6 +342,7 @@ module.exports = AngVrBase.extend({
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       //vtvar templatePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
       var templatePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase()  + '.js');
+      
       var partialsPath = this.templatePath('../partials/services/' +  this.artifacts.services[key] + '.js');
 
       var partialContents = this.fs.read(partialsPath);
@@ -351,6 +352,11 @@ module.exports = AngVrBase.extend({
       partialContents += '//' + this.globals.fileUpdatedTag;
       partialContents += ts;
 
+      console.log('sub-angular.partialsInjection: partialContents=', partialContents);
+      console.log('sub-angular.partialsInjection: templatePath contents', this.fs.read(templatePath));
+      console.log('sub-angular.partialsInjection: partialsPath=', partialsPath);
+      console.log('sub-angular.partialsInjection: templatePath=', templatePath);
+      
       this.fs.copyTpl(
         templatePath,
         templatePath,
@@ -443,11 +449,20 @@ module.exports = AngVrBase.extend({
                                               //vt[ this.artifacts.services[key] ] + '.js');
             this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase() + '.js' );
 
+      console.log('sub-angular.writing: templatePath=', templatePath);
+      console.log('sub-angular.writing: this.options.userNames.services.base=', this.options.userNames.services.base);
+      var result = this.fs.read(templatePath);
+      console.log('sub-angular.writing: result=', result);
+
       this.fs.copyTpl(
         templatePath,
-        templatePath, {
+        templatePath,
+        {
           name: key,
-          appName: this.options.appName
+          appName: this.options.appName,
+          //vt add
+          baseService: this.options.userNames.services.base
+          //vt end
         }
       );
     }.bind(this));
@@ -504,8 +519,8 @@ module.exports = AngVrBase.extend({
 
     // copy standard files    
 //     this.log('sub-angular:writing: srcPath=', this.templatePath('main.html'));
-    console.log('sub-angular:writing: destPath=', 'app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html');
-    console.log('hi');
+    //console.log('sub-angular:writing: destPath=', 'app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html');
+    //console.log('hi');
 // );
     // console.log('sub-angular:writing: this.options=', this.options);
     // console.log('sub-angular:writing: this=', this);
@@ -522,7 +537,58 @@ module.exports = AngVrBase.extend({
       //vt end
     );
   },
+
+  //vt add
+  // If the user has specified a non-default controller name (e.g. 'main')
+  // then update the route to have the new controller.
+  //TODO: this is very similar to '_markupFile'. Consider generailizing and combining
+  // TODO: this is the generalized version.  Rename and have _markupFile call this.
+  //updateRoute: function (filePath, insertPointRegex, insertStanza) {
+  _insertIntoFile: function (filePath, insertPointRegex, insertStanza) {
+    // var routeStanza = [
+    //   ".when('/" + ctrlClass + "', {",
+    //   "templateUrl: 'views/" + ctrl + ".html'",
+    //   "controller: '" + ctrlClass + "',",
+    //   "controllerAs: '" + ctrl + "'",
+    //   "})",
+    // ].join('\n');
+    
+    var fileContents = this.fs.read(filePath);
+    // loop over each line looking for our insert point
+    var lines = _.map(fileContents.split('\n'));
+
+    var accumulateLines = function(str) {
+      var result = '';
+
+      // look for closing bracket, and insert our tag before this
+      //if (/\.otherwise/.test(str)) {
+      if (insertPointRegex.test(str)) {
+        //result +=  '<%= partial %>' + '\n';   
+        result +=  insertStanza;   
+      }
+
+      result += str + '\n';
+
+      return result;
+    };
+    
+    // convert file string into an array of lines (including tagged line)
+    var taggedLines = _.map(lines, accumulateLines);
+
+    // convert the array back into a string so we can rewrite to the file    
+    fileContents = '';
+
+    var strAccumulate = function(str) {      
+      fileContents += str;
+    };
+
+    _.map(taggedLines, strAccumulate);
+
+    // and write it back
+    this.fs.write(filePath, fileContents);
+  },
   
+  //vt end
   install: function () {
     //this.installDependencies();
     //this.bowerInstall(packages[this.format], ['--save-dev']);

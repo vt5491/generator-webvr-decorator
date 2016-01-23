@@ -17,6 +17,8 @@ var common = require('../lib/common.js');
 //vt add
 var _ = require('lodash');
 var should = require('should');
+var expect = require('chai').expect;
+const fs = require('fs');
 //vt end
 
 var common_ut = require('./test-lib-common.js');
@@ -25,6 +27,7 @@ var common_ut = require('./test-lib-common.js');
 // this will be the end to end test
 describe('angular-vr-base:app end to end', function () {
 
+  
    beforeEach(function (done) {
     var artifacts = {};
     artifacts.services = {};
@@ -168,6 +171,41 @@ describe('angular-vr-base:app end to end', function () {
 describe('angular-vr-base:individual methods', function () {
   var subAngularGenerator;
   var APP_NAME = 'testapp';
+  //vt add
+    // var mainCtrl = 'userMain';
+    // var mainCtrlClass = 'UserMainCtrl';
+  //vt end
+  //Note: there is at least one test ('artifacts transformation pipeline') that
+  // alters values in subAngularGenerator, so this needs to be a 'beforeEach'.  The
+  // other test could probably work off a before loop, so if you really wanted
+  // you could segregate them.  However, these tests are fast enough, so no biggy
+  // to leave as 'beforeEach' for all.
+
+    //vt add
+  var mainCtrl, mainCtrlClass, mainService, baseService;
+  
+  var setupUserOverrideEnvironment = function () {
+    // this function sets up an environment mimicing the effects of a user specifying
+    // non-default artifact names.  It really belongs in beforeEach, but since I came
+    // up with this feature later in the implementation cycle, I wanted to add it
+    // selectively so as to not break any prior tests that are assuming default values.
+    // we set up some userName specific stuff here to temporarily override the
+    // values setup in the beforeEach
+    // override the name of the main controller for testing purposes
+    mainCtrl = 'userMain';
+    mainCtrlClass = 'UserMainCtrl';
+    subAngularGenerator.options.userNames.ctrls.main = mainCtrl;
+    subAngularGenerator.fs.write('app/scripts/controllers/' + mainCtrl.toLowerCase() + '.js', '//dummy-line\n  });\n');
+
+    mainService = 'userMain';
+    subAngularGenerator.options.userNames.services.main = mainService;
+    subAngularGenerator.fs.write('app/scripts/services/' + mainService.toLowerCase() + '.js', '//dummy-line\n  });\n');
+
+    baseService = 'userBase';
+    subAngularGenerator.options.userNames.services.base = baseService;
+    subAngularGenerator.fs.write('app/scripts/services/' + baseService.toLowerCase() + '.js', '//dummy-line\n  });\n');
+  };
+    //vt end
   
   beforeEach(function (done) {
 
@@ -203,7 +241,6 @@ describe('angular-vr-base:individual methods', function () {
       ],
       null,
      {'artifacts': artifacts, appName: APP_NAME, userNames: userNames,
-  //'globals.fileupdatedtag': 'webvr-decorator-> file updated on: ',
      });
 
     //subAngularGenerator.globals.fileupdatedtag = 'webvr-decorator-> file updated on: ';
@@ -255,14 +292,81 @@ describe('angular-vr-base:individual methods', function () {
     subAngularGenerator.fs.write('app/scripts/directives/canvaskeys.js', '//dummy-line\n  });\n');
 
     // mock up partials    
-    subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/main.js'), '<%= name %>\n');    
+    //vtsubAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/main.js'), '<%= name %>\n');    
+    subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/main.js'), '<%= name %>\n <%= baseService %>.ONE_DEGREE');    
     subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/base.js'), '<%= name %>\n');
     subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/directives/canvaskeys.js'), '<%= name %>\n');
-          
-    done();
-  }
-  );
 
+    //vt add
+    // mock some user partials too
+    // subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/userMain.js'), '<%= baseService %>\n');    
+    // subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/userBase.js'), '<%= name %>\n');
+      // .when('/about', {
+      //   templateUrl: 'views/about.html',
+      //   controller: 'AboutCtrl',
+      //   controllerAs: 'about'
+      // })
+      // .when('/monad', {
+      //   templateUrl: 'views/monad.html',
+      //   controller: 'MonadCtrl',
+      //   controllerAs: 'monad'
+      // })
+      // .otherwise({
+      //   redirectTo: '/'
+      // });
+
+    // setup an app.js (for route processing)
+    var appJsCode = [
+      'angular',
+      ".module ( 'thereminAngApp', [",
+      'ngAnimate',
+      ' ])',
+      '.config(function ($routeProvider) {',
+      '$routeProvider',
+      ".when('/', {",
+      "templateUrl: 'views/main.html',",
+      "controller: 'MainCtrl',",
+      "controllerAs: 'main'",
+      "})",
+      ".otherwise({",
+      "redirectTo: '/'",
+      "});",
+      "});",
+    ].join('\n');
+
+    subAngularGenerator.fs.write('app/scripts/app.js', appJsCode);
+    //vt end
+    
+    done();
+  });
+  //);'
+
+  //vt add
+  // in this ut, we don't actually call any methods in the generator, but rather
+  // insure any artifacts needed for a sucessful run are in the proper condition
+  it('pre-runtime environment is properly set', function(){    
+    var result, srcPath, baseServiceRegex;
+    
+    //srcPath = subAngularGenerator.templatePath('../partials/services/main.js');
+    srcPath = __dirname + '/../generators/sub-angular/partials/services/main.js';
+
+    console.log('test-sub-angular.pre-runtime: srcPath=', srcPath);
+    console.log('test-sub-angular.pre-runtime: __dirname=', __dirname);
+
+    //result = subAngularGenerator.fs.read(srcPath);
+    result = fs.readFileSync(srcPath, 'utf8');
+
+    //console.log('result=', result);
+    var baseServiceRegex = new RegExp('.*\<\%\= baseService \%\>', 'm');
+    //baseServiceRegex.test(result).should.be.true;
+    expect(baseServiceRegex.test(result)).to.be.true;
+    //expect(7 === 8).to.be.true;
+    // var result = subAngularGenerator._initGlobals();
+
+    // assert.equal(subAngularGenerator.artifacts.services.main, subAngularGenerator.defaultArtifactNames.mainService);
+  });
+     //vt end
+  
   it('_initGlobals works', function(){    
     var result = subAngularGenerator._initGlobals();
 
@@ -321,19 +425,30 @@ describe('angular-vr-base:individual methods', function () {
     var result;
 
     //vt add
-    // we set up some userName specific stuff here to temporarily override the
-    // values setup in the beforeEach
-    // override the name of the main controller for testing purposes
-    var mainCtrl = 'userMain';
-    var mainCtrlClass = 'UserMainCtrl';
-    subAngularGenerator.options.userNames.ctrls.main = mainCtrl;
-
-    subAngularGenerator.fs.write('app/scripts/controllers/' + mainCtrl.toLowerCase() + '.js', '//dummy-line\n  });\n');
+    setupUserOverrideEnvironment();
     //vt end
+    // //vt add
+    // // we set up some userName specific stuff here to temporarily override the
+    // // values setup in the beforeEach
+    // // override the name of the main controller for testing purposes
+    // var mainCtrl = 'userMain';
+    // var mainCtrlClass = 'UserMainCtrl';
+    // subAngularGenerator.options.userNames.ctrls.main = mainCtrl;
+    // subAngularGenerator.fs.write('app/scripts/controllers/' + mainCtrl.toLowerCase() + '.js', '//dummy-line\n  });\n');
+
+    // var mainService = 'userMain';
+    // subAngularGenerator.options.userNames.services.main = mainService;
+    // subAngularGenerator.fs.write('app/scripts/services/' + mainService.toLowerCase() + '.js', '//dummy-line\n  });\n');
+
+    // var baseService = 'userBase';
+    // subAngularGenerator.options.userNames.services.base = baseService;
+    // subAngularGenerator.fs.write('app/scripts/services/' + baseService.toLowerCase() + '.js', '//dummy-line\n  });\n');
+    // //vt end
     // markup artifacts
     subAngularGenerator.markupArtifacts();
 
-    result = subAngularGenerator.fs.read('app/scripts/services/base.js');
+    //vtresult = subAngularGenerator.fs.read('app/scripts/services/base.js');
+    result = subAngularGenerator.fs.read('app/scripts/services/' + baseService.toLowerCase() + '.js');
 
     var regex = /\<\%\= partial \%\>/;
     
@@ -342,16 +457,26 @@ describe('angular-vr-base:individual methods', function () {
     // partials injection
     subAngularGenerator.partialsInjection();
 
-    result = subAngularGenerator.fs.read('app/scripts/services/base.js');
+    //vtresult = subAngularGenerator.fs.read('app/scripts/services/base.js');
+    result = subAngularGenerator.fs.read('app/scripts/services/' + baseService.toLowerCase() + '.js');
     
     var regex = /\<\%\= name \%\>/;
     
     assert(regex.test(result));
 
+    //vt add
+    result = subAngularGenerator.fs.read('app/scripts/services/' + mainService.toLowerCase() + '.js');
+    
+    var regex = /\<\%\= baseService \%\>/;
+    console.log('pipeline.partialsInjection: result=', result);
+    
+    assert(regex.test(result));
+    //vt end
     // template Interpolation
     subAngularGenerator.writing();
 
-    result = subAngularGenerator.fs.read('app/scripts/services/base.js');
+    //vtresult = subAngularGenerator.fs.read('app/scripts/services/base.js');
+    result = subAngularGenerator.fs.read('app/scripts/services/' + baseService.toLowerCase() + '.js');
     var regex = /base/m;
     
     assert(regex.test(result));
@@ -360,7 +485,8 @@ describe('angular-vr-base:individual methods', function () {
     result = subAngularGenerator.fs.read('app/scripts/controllers/' + mainCtrl.toLowerCase() + '.js');
 
     // is the call to the main service now in the controller file?
-    regex = new RegExp(subAngularGenerator.defaultArtifactNames.mainService + '.init');    
+    //regex = new RegExp(subAngularGenerator.defaultArtifactNames.mainService + '.init');    
+    regex = new RegExp(subAngularGenerator.options.userNames.services.main + '.init');    
 
     assert(regex.test(result));
 
@@ -383,6 +509,29 @@ describe('angular-vr-base:individual methods', function () {
     var ctrlRegex = new RegExp('.*ng-controller="' + mainCtrlClass + '"', 'm');    
 
     assert(ctrlRegex.test(result));
+
+    // test the main.js service
+    //console.log('test-sub-angular: subAngularGenerator.options=', subAngularGenerator.options);
+    result = subAngularGenerator.fs.read('app/views/' + subAngularGenerator.options.userNames.ctrls.main.toLowerCase() + '.html');
+    //console.log('===>test-sub-angular: view result=', result);
+
+    //assert.exist(result);
+    //ng-controller="MonadCtrl"
+    result.should.exist;
+    // assert.file([
+    //   'app/views/main.html',
+    // ]);
+    // make sure there's a 'userBase.ONE_DEGREE' in the file (instad of <%= baseService %>.ONE_DEGREE)
+    result = subAngularGenerator.fs.read('app/scripts/services/' + subAngularGenerator.options.userNames.services.main.toLowerCase() + '.js');
+
+    console.log('===>test-sub-angular: main service result=', result);
+    var baseServiceRegex = new RegExp( '.*' + baseService + '.ONE_DEGREE', 'm');    
+    expect(baseServiceRegex.test(result)).to.be.true;
+    
+    // and there are no templates
+    var baseServiceRegex = new RegExp( '.*\<\%\= baseService \%\>' + '.ONE_DEGREE', 'm');    
+    expect(baseServiceRegex.test(result)).to.be.false;
+
     //vt end
   });
 
@@ -403,6 +552,59 @@ describe('angular-vr-base:individual methods', function () {
     assert(!/\<\%\= partial \%\>/m.test(fileContents));    
   });
 
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+  it('updateRoute works', function () {
+    var result, fp, regex;
+    //var userMainCtrl = 'userMain';
+    //var userMainCtrl = 'MonadCtrl';
+    
+    fp = 'app/scripts/app.js';
+
+    setupUserOverrideEnvironment();
+    
+    var ctrl = 'userMain';
+    var ctrlClass = 'UserMainCtrl';
+
+    var routeStanza = [
+      ".when('/" + ctrlClass + "', {",
+      "templateUrl: 'views/" + ctrl + ".html'",
+      "controller: '" + ctrlClass + "',",
+      "controllerAs: '" + ctrl + "'",
+      "})",
+    ].join('\n');
+
+    var insertPointRegex = new RegExp("\.otherwise");
+
+    //subAngularGenerator.updateRoute(fp, insertPointRegex, routeStanza);
+    subAngularGenerator._insertIntoFile(fp, insertPointRegex, routeStanza);
+    
+    result = subAngularGenerator.fs.read(fp);
+
+    console.log('test-sub-angular.updateRoute: result=', result);
+    
+    var tmp = escapeRegExp("})");
+    //console.log('tmp=', tmp);
+    //regex = new RegExp("\}\)\n" + ".*" + "\.otherwise\(\{\n", 'm');    
+    //regex = new RegExp("\}\)\.otherwise\(\{", 'm');
+    //regex = new RegExp("\.when\(\'\/" + userMainCtrl + "\'");
+    // the following works in perl
+    //regex = new RegExp("\.when\(\'\/" + userMainCtrl + "\'");
+    // Have to go with a basic regex, as I simply cannot get any nuanced
+    // versions to work. So just check to see if the user controller is in
+    // there somewhere
+    regex = new RegExp(mainCtrlClass, 'm');
+    console.log('regex=', regex);
+ //my $matches = ( $s =~ /\.when\(\'\/$ctrl\'/);
+    //result.match(regex);
+    //result.match(/\}\)\n.*\.otherwise\(\{/m);
+
+    //console.log('$1=', RegExp.$1);
+    assert(regex.test(result));
+
+  });
 });
 
 

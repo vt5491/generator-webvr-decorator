@@ -8,8 +8,9 @@
     factory.BaseRotation = new THREE.Quaternion();
     factory.BaseRotation.copy(factory.INIT_ROTATION);
 
-    factory.xyProjectionPlaneQuat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), base.ONE_DEGREE * 0.2 );
-    factory.cubeQuat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), base.ONE_DEGREE * 0.2 );
+    factory.xyProjectionPlaneQuat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), <%= baseService %>.ONE_DEGREE * 0.2 );
+
+    factory.cubeQuat = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3(0,1,0), <%= baseService %>.ONE_DEGREE * 0.2 );
 
     // these have to be function scope variables because they are set via
     // or need to be accessed from asynchronous callbacks.
