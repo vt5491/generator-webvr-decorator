@@ -70,6 +70,15 @@ module.exports = AngVrBase.extend({
     
     // initialize directive names
     this.artifacts.directives.canvasKeys = this.defaultArtifactNames.canvasKeysDirective;
+
+    //vt add
+    this.mainCtrl = this.options.userNames.ctrls.main + 'Ctrl';
+    //this.mainCtrlClass = this.mainCtrl.charAt(0).toUpperCase() + this.mainCtrl.slice(1);
+    // angular controller class names are strange.  The first char only in intialized
+    // and the rest is lower case.  Then you add a 'Ctrl' to then end.  Thus if your
+    // controller name is 'myAbcDefApp', the class name would be 'MyabcdefappCtrl'.
+    this.mainCtrlClass = this.options.userNames.ctrls.main.charAt(0).toUpperCase() + this.options.userNames.ctrls.main.slice(1).toLowerCase() + 'Ctrl';
+    //vt end
   },
 
   initializing: function () {    
@@ -113,8 +122,9 @@ module.exports = AngVrBase.extend({
       // console.log('createangularctrls: args=', this.options.userNames.ctrls[key]);
       //this.composeWith('angular:ctrl',  {args: [ this.options.userNames.ctrls[this.artifacts.ctrls[key]] ]} );
       try {
-
-      this.composeWith('angular:controller',  {args: [ this.options.userNames.ctrls[ key]]});
+        console.log('sub-angular.createAngularCtrls: key=', key);
+        console.log('sub-angular.createAngularCtrls:this.options.userNames.ctrls= ',this.options.userNames.ctrls[key]);
+        this.composeWith('angular:controller',  {args: [ this.options.userNames.ctrls[ key]]});
       }
       catch (e) {
         console.log('caught error ' + e + 'when calling composeWith-angular:controller');
@@ -388,6 +398,8 @@ module.exports = AngVrBase.extend({
       var templatePath = this.destinationPath('app/scripts/directives/' + [ this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase() ] + '.js');
       var partialsPath = this.templatePath('../partials/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
 
+      console.log('sub-angular:injectDependencies: directive: templatePath=', templatePath);
+      console.log('sub-angular:injectDependencies: directive: partialsPath=', partialsPath);
       var partialContents = this.fs.read(partialsPath);
 
       var ts = new Date().toLocaleString();
@@ -415,17 +427,20 @@ module.exports = AngVrBase.extend({
           callback(err, libArray);
         });
       }.bind(this),
-      function updateHtml(libArray, callback) {
+        function updateHtml(libArray, callback) {
         // add in some static libs that are defined elsewhere
         
         // I guess I need to add these manually
-        //libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
-        //libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
+          //vt note: the three.min.js, webvr-polyfill.js, and webvr-manager.js were
+          // originallg commented out in the release version.  I seem to have to
+          // restore them now
+        libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
+        libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
         
         libArray[libArray.length] = 'bower_components/threejs/examples/js/controls/VRControls.js';
         libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
         
-        //libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
+        libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
                         
         var htmlPath = this.destinationPath('app/index.html');
         this.registerLibsHtml(htmlPath, libArray);
@@ -526,14 +541,17 @@ module.exports = AngVrBase.extend({
     // console.log('sub-angular:writing: this=', this);
     //a.charAt(0).toUpperCase() + a.slice(1);
     // go from 'userMain' to 'UserMainCtrl' 
-    var mainCtrl = this.options.userNames.ctrls.main + 'Ctrl';
-    var mainCtrlClass = mainCtrl.charAt(0).toUpperCase() + mainCtrl.slice(1);
+    // var mainCtrl = this.options.userNames.ctrls.main + 'Ctrl';
+    // var mainCtrlClass = mainCtrl.charAt(0).toUpperCase() + mainCtrl.slice(1);
+    console.log('sub-angular.writing: this.mainCtrlClass=', this.mainCtrlClass);
+    //console.log('sub-angular.writing: mainCtrlClass=', mainCtrlClass);
 
     this.fs.copyTpl(
       this.templatePath('main.html'),
       //this.destinationPath('app/views/main.html')
       //vt add
-      this.destinationPath('app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html'), {mainCtrlClass: mainCtrlClass}
+      //this.destinationPath('app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html'), {mainCtrlClass: mainCtrlClass}
+      this.destinationPath('app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html'), {mainCtrlClass: this.mainCtrlClass}
       //vt end
     );
   },
@@ -586,6 +604,39 @@ module.exports = AngVrBase.extend({
 
     // and write it back
     this.fs.write(filePath, fileContents);
+  },
+  
+  updateRoute: function ()  {
+    // we only need to add a route if it's the controller is not the default 'main' (becuase
+    // the vainilla angular app will already have a 'main' route)
+    console.log('subAngular.updateRoute: this.mainCtrl=' + this.mainCtrl + ',this.defaultArtifactNames.mainCtrl=' +  this.defaultArtifactNames.mainCtrl);
+    //if (this.mainCtrl !== this.defaultArtifactNames.mainCtrl + 'Ctrl') {
+    if (this.options.userNames.ctrls.main !== this.defaultArtifactNames.mainCtrl) {
+      console.log('subAngular.updateRoute: now adding a route');
+      var result, fp, regex;
+      //var userMainCtrl = 'userMain';
+      //var userMainCtrl = 'MonadCtrl';
+      
+      //fp = 'app/scripts/app.js';
+      fp = this.destinationPath('app/scripts/app.js');
+
+      //setupUserOverrideEnvironment();
+      
+      // var ctrl = 'userMain';
+      // var ctrlClass = 'UserMainCtrl';
+
+      var routeStanza = [
+        ".when('/" + this.options.userNames.ctrls.main + "', {",
+        "templateUrl: 'views/" + this.options.userNames.ctrls.main.toLowerCase() + ".html'" + ',',
+        "controller: '" + this.mainCtrlClass  + "',",
+        "controllerAs: '" + this.options.userNames.ctrls.main + "'",
+        "})",
+      ].join('\n');
+
+      var insertPointRegex = new RegExp("\.otherwise");
+
+      this._insertIntoFile(fp, insertPointRegex, routeStanza);
+    };
   },
   
   //vt end

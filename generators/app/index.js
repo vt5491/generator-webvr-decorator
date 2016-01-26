@@ -109,12 +109,12 @@ module.exports = AppBase.extend({
       //vt        message: 'do you want to add webvr capability to this application ?'
       //vt      });
 
-      prompts.push( {
-        type: 'confirm',      
-        name: 'continue',
-        default: 'true',
-        message: 'Add webVR capability to this application ?'
-      });
+      // prompts.push( {
+      //   type: 'confirm',      
+      //   name: 'continue',
+      //   default: 'true',
+      //   message: 'Add webVR capability to this application 2?'
+      // });
 
       prompts.push( {
         type: 'checkbox',
@@ -232,7 +232,15 @@ module.exports = AppBase.extend({
           //message: 'new name for ' + this.globals.MAIN_SERVICE + ' service:',
           message: 'new name for ' + this.globals.artifactNameLookup[val] + ' ' + type + ':',
         });
+
        };
+
+      prompts.push( {
+        type: 'confirm',      
+        name: 'continue',
+        default: 'true',
+        message: 'Add webVR capability to this application 2?'
+      });
 
       console.log('app: prompts=', prompts);
       this.prompt(prompts, function(answers) {
@@ -326,12 +334,14 @@ module.exports = AppBase.extend({
       var tgtJson = jsonfile.readFileSync(this.destinationPath('bower.json'));
       
       // threejs needs to go first since a lot of other modules are dependent on it.
+      console.log('app.install: now installing threejs');
       if(!tgtJson.dependencies['threejs']) {
         this.log('app.install: now installing threejs');
         
         this.bowerInstall(['threejs'], { 'save': true });        
       };      
 
+      console.log('app.install: now installing webvr-boilerplate');
       if(!tgtJson.dependencies['webvr-boilerplate']) {
         this.log('app.install: now installing webvr-boilerplate');
         

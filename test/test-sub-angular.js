@@ -122,6 +122,9 @@ describe('angular-vr-base:app end to end', function () {
         common_ut.writeDummyIndexHtml('', gen);
         gen.fs.write('app/views/main.html', '//dummy-line\n  });\n');
         gen.fs.write('app/scripts/directives/canvaskeys.js', '//dummy-line\n  });\n');
+        //vt add
+        gen.fs.write(gen.destinationPath('app/scripts/app.js'), '      .otherwise({\n  });\n');
+        //vt end
       }.bind(this))     
       .on('end', done);
   });
@@ -165,6 +168,20 @@ describe('angular-vr-base:app end to end', function () {
 
     assert(regex.test(fileContents));    
   });
+  //vt add
+  it('adds a stanza to the route', function () {
+    var fileContents;
+    
+    var gen = this.angVrBaseAppRunContext.generator;
+
+    fileContents = gen.fs.read('app/scripts/app.js');
+    
+    var regex = /MainCtrl/m;
+
+    // there should not be a MainCtrl because we are using defaults
+    assert(!regex.test(fileContents));    
+  });
+  //vt end
 });
 
 // this will test individual methods, or sub-workflows.
@@ -204,6 +221,11 @@ describe('angular-vr-base:individual methods', function () {
     baseService = 'userBase';
     subAngularGenerator.options.userNames.services.base = baseService;
     subAngularGenerator.fs.write('app/scripts/services/' + baseService.toLowerCase() + '.js', '//dummy-line\n  });\n');
+
+    // re-init class variables
+    //subAngularGenerator.initializing();
+    subAngularGenerator.mainCtrl = subAngularGenerator.options.userNames.ctrls.main + 'Ctrl';
+    subAngularGenerator.mainCtrlClass = subAngularGenerator.mainCtrl.charAt(0).toUpperCase() + subAngularGenerator.mainCtrl.slice(1);
   };
     //vt end
   
@@ -298,6 +320,11 @@ describe('angular-vr-base:individual methods', function () {
     subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/directives/canvaskeys.js'), '<%= name %>\n');
 
     //vt add
+    console.log('beforeEach. app/script/app.js=', subAngularGenerator.destinationPath('app/scripts/app.js'));
+    subAngularGenerator.fs.write(subAngularGenerator.destinationPath('app/scripts/app.js'), '      .otherwise({\n  });\n');
+    var tmpResult = subAngularGenerator.fs.read(subAngularGenerator.destinationPath('app/scripts/app.js'));
+    console.log('beforeEach. tmpResult=', tmpResult);
+    //subAngularGenerator.fs.write('app/scripts/app.js', '      .otherwise({\n  });\n');
     // mock some user partials too
     // subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/userMain.js'), '<%= baseService %>\n');    
     // subAngularGenerator.fs.write(subAngularGenerator.templatePath('../partials/services/userBase.js'), '<%= name %>\n');
