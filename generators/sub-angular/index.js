@@ -28,7 +28,6 @@ module.exports = AngVrBase.extend({
     
     // services    
     this.defaultArtifactNames.mainService = 'main';
-    //this.defaultArtifactNames.mainService = 'mainService';
     this.defaultArtifactNames.baseService = 'base';
     this.defaultArtifactNames.utilsService = 'utils';
     
@@ -39,13 +38,6 @@ module.exports = AngVrBase.extend({
     // we should be able to get rid of main ctrls once vrAppCtrl is worked out.
     this.defaultArtifactNames.mainCtrl = 'main'; 
     
-    // if (typeof this.options !== 'undefined' && typeof this.options.appName !== 'undefined'){
-    //   this.defaultArtifactNames.vrAppController = this.options.appName;
-    // }
-    // else {
-    //   this.defaultArtifactNames.vrAppController = 'vrapp';
-    // }
-
     this.defaultArtifactNames.custCtrl = 'cust';
 
     // directives
@@ -64,84 +56,46 @@ module.exports = AngVrBase.extend({
 
     // initialize ctrl names
     this.artifacts.ctrls.main = this.defaultArtifactNames.mainCtrl;
-    // this.artifacts.controllers.vrapp = this.defaultArtifactNames.vrAppController;
-    // TODO: add support for cust ctrl later
-    //this.artifacts.ctrls.cust = this.defaultArtifactNames.custCtrl;
     
     // initialize directive names
     this.artifacts.directives.canvasKeys = this.defaultArtifactNames.canvasKeysDirective;
 
-    //vt add
     this.mainCtrl = this.options.userNames.ctrls.main + 'Ctrl';
-    //this.mainCtrlClass = this.mainCtrl.charAt(0).toUpperCase() + this.mainCtrl.slice(1);
+    
     // angular controller class names are strange.  The first char only in intialized
     // and the rest is lower case.  Then you add a 'Ctrl' to then end.  Thus if your
     // controller name is 'myAbcDefApp', the class name would be 'MyabcdefappCtrl'.
     this.mainCtrlClass = this.options.userNames.ctrls.main.charAt(0).toUpperCase() + this.options.userNames.ctrls.main.slice(1).toLowerCase() + 'Ctrl';
-    //vt end
   },
 
   initializing: function () {    
-    //console.log('subAngular.initializing: this.options=', this.options);
     this._initGlobals();
 
     return;
-    // // we need to create a partial file that is the same name as the appName.  We
-    // // have to dynamically create this at runtime, since we don't know the app name
-    // // until the user supplies it via prompts.
-    // var mainFilePath = path.join(__dirname, 'partials/controllers/main.js');
-    // // creating the vrapp at runtime causes write errors from the generator when running as an 'official'
-    // // generator (from npm).  Since we currently do not need this comment this out
-    // // var vrAppFilePath = path.join(__dirname, 'partials/controllers/' + this.artifacts.controllers.vrapp + '.js');    
-
-    // // this.fs.copy(mainFilePath, vrAppFilePath);
   },
 
   createAngularServices: function () {
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       this.composeWith('angular:service',  {
-        //vtargs: [ this.artifacts.services[key] ],
         args: [ this.options.userNames.services[ this.artifacts.services[key] ]],
-
       } );
     }.bind(this));    
   },
 
   createAngularCtrls: function () {
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {      
-      // the 'main' controller is already pre-defined in a standard angular app.  Thus
-      // we want to skip creating this controller anew.
-//vt-x      if( key === 'main') {
-//vt-x        return;
-//vt-x      };
-      
-      //this.composeWith('angular:controller',  {args: [ this.artifacts.controllers[key] ]} );
-      // console.log('createAngularCtrls: key=', key);
-      // console.log('createAngularCtrls: this.artifacts.ctrls=', this.artifacts.ctrls);
-      // console.log('createangularctrls: this.options.userNames=', this.options.userNames);
-      // console.log('createangularctrls: args=', this.options.userNames.ctrls[key]);
-      //this.composeWith('angular:ctrl',  {args: [ this.options.userNames.ctrls[this.artifacts.ctrls[key]] ]} );
       try {
-        console.log('sub-angular.createAngularCtrls: key=', key);
-        console.log('sub-angular.createAngularCtrls:this.options.userNames.ctrls= ',this.options.userNames.ctrls[key]);
         this.composeWith('angular:controller',  {args: [ this.options.userNames.ctrls[ key]]});
       }
       catch (e) {
-        console.log('caught error ' + e + 'when calling composeWith-angular:controller');
+        this.log('caught error ' + e + 'when calling composeWith-angular:controller');
       }
-      //this.composeWith('angular:ctrl',  {args: ['main2'] });
     }.bind(this));    
   },
 
   createAngularDirectives: function () {
     //directiveLoop:
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {      
-      //this.composeWith('angular:directive',  {args: [ this.artifacts.directives[key] ]} ); 
-      //TODO: you want to make sure the directive name is 'canvasKeys' (camel case)
-      // and not all lower case.  This is because the directive need to be camel case
-      // internally.  Your choices are to use something other than userNames (which defualts
-    // to all lc, or chang userNames to be camel case.  If you do the latter make sure
-    // it doesn't break any thing else)
       this.composeWith('angular:directive',  {args: [ this.options.userNames.directives[key] ]} ); 
     }.bind(this));    
   },
@@ -247,7 +201,7 @@ module.exports = AngVrBase.extend({
             dependenciesStr += (', ' + dependencies[i]) ;
           }
           else {
-            console.log('Will not inject dependency ' + dependencies[i] + ' because its already present');
+            this.log('Will not inject dependency ' + dependencies[i] + ' because its already present');
           }
           
         };
@@ -259,7 +213,7 @@ module.exports = AngVrBase.extend({
 
       // now insert it back into the lines array      
       var newLine = matchedLine.replace(/(function\s*)\((.*)\)/,
-            "$1(" + dependenciesStr + ")");            
+                                        "$1(" + dependenciesStr + ")");            
 
       lines[matchedLineNum] = newLine;
 
@@ -281,7 +235,6 @@ module.exports = AngVrBase.extend({
   markupArtifacts: function () {
     // services
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
-      //vtvar filePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
       var filePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase() + '.js'); 
 
       this._markupFile(filePath);
@@ -289,51 +242,36 @@ module.exports = AngVrBase.extend({
     
     // ctrls
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
-      //var filePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
       var filePath = this.destinationPath('app/scripts/controllers/' + this.options.userNames.ctrls[this.artifacts.ctrls[key]].toLowerCase()  + '.js');
-      console.log('ctrlMarkup: filePath=', filePath);
       this._markupFile(filePath);
     }.bind(this));
 
     // directives
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
-      //var filePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
       var filePath = this.destinationPath('app/scripts/directives/' +  this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase()  + '.js');
       
       this._markupFile(filePath);
     }.bind(this));
     
     // inject mainService into mainCtrl dependencies
-    //var controllerPath = this.destinationPath('app/scripts/controllers/' +  this.artifacts.ctrls['main'].toLowerCase() + '.js');
     var controllerPath = this.destinationPath('app/scripts/controllers/' +  this.options.userNames.ctrls['main'].toLowerCase() + '.js');    
-        
+    
     this._injectDependencies(controllerPath, 'controller', [
-      //this.artifacts.services.main
       this.options.userNames.services['main'],
     ]);
-    console.log('injectDeP: controllerPath=' + controllerPath + ',service=' + this.options.userNames.services['main']);
 
     // services
-    //vtvar servicePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services['main'] ] + '.js');    
     var servicePath = this.destinationPath('app/scripts/services/' +  this.options.userNames.services['main'].toLowerCase() + '.js');    
     
-    //this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.base]);
     this._injectDependencies(servicePath, 'service', [
       '$window',
       this.options.userNames.services['base'],
       this.options.userNames.services['utils'],]);
-//vt add
-    //this._injectDependencies(servicePath, 'service', ['$window', this.artifacts.services.utils]);
-//vt end
-    // directives
-    //var directivePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives['canvasKeys'] ] + '.js');
-    var directivePath = this.destinationPath('app/scripts/directives/' +
- this.options.userNames.directives['canvasKeys'].toLowerCase()  + '.js');
-      console.log('injectDeps-directives: directivePath=', directivePath);
-      //console.log('injectDeps-directives: key=', key);
-      console.log('injectDeps-directives: userNames=', this.options.userNames);
     
-    //this._injectDependencies(directivePath, 'directive', ['$document', '$rootScope', this.artifacts.services.main, this.artifacts.services.base]);
+    // directives
+    var directivePath = this.destinationPath('app/scripts/directives/' +
+                                             this.options.userNames.directives['canvasKeys'].toLowerCase()  + '.js');
+    
     this._injectDependencies(directivePath, 'directive', [
       '$document',
       '$rootScope',
@@ -345,12 +283,11 @@ module.exports = AngVrBase.extend({
     
     this.commentOutCode(directivePath, regex);
   },                                                 
-      
+  
   // inject partials into the template code
   partialsInjection: function () {
 
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
-      //vtvar templatePath = this.destinationPath('app/scripts/services/' + [ this.artifacts.services[key] ] + '.js');
       var templatePath = this.destinationPath('app/scripts/services/' + this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase()  + '.js');
       
       var partialsPath = this.templatePath('../partials/services/' +  this.artifacts.services[key] + '.js');
@@ -358,15 +295,9 @@ module.exports = AngVrBase.extend({
       var partialContents = this.fs.read(partialsPath);
 
       var ts = new Date().toLocaleString();
-      //partialContents += '// file generated: ';
       partialContents += '//' + this.globals.fileUpdatedTag;
       partialContents += ts;
 
-      console.log('sub-angular.partialsInjection: partialContents=', partialContents);
-      console.log('sub-angular.partialsInjection: templatePath contents', this.fs.read(templatePath));
-      console.log('sub-angular.partialsInjection: partialsPath=', partialsPath);
-      console.log('sub-angular.partialsInjection: templatePath=', templatePath);
-      
       this.fs.copyTpl(
         templatePath,
         templatePath,
@@ -376,7 +307,6 @@ module.exports = AngVrBase.extend({
     }.bind(this));
 
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
-      //var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
       var templatePath = this.destinationPath('app/scripts/controllers/' + [ this.options.userNames.ctrls[ this.artifacts.ctrls[key]].toLowerCase() ] + '.js');
       var partialsPath = this.templatePath('../partials/controllers/' + [ this.artifacts.ctrls[key] ] + '.js');
 
@@ -394,12 +324,9 @@ module.exports = AngVrBase.extend({
     }.bind(this));    
 
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
-      //var templatePath = this.destinationPath('app/scripts/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
       var templatePath = this.destinationPath('app/scripts/directives/' + [ this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase() ] + '.js');
       var partialsPath = this.templatePath('../partials/directives/' + [ this.artifacts.directives[key].toLowerCase() ] + '.js');
 
-      console.log('sub-angular:injectDependencies: directive: templatePath=', templatePath);
-      console.log('sub-angular:injectDependencies: directive: partialsPath=', partialsPath);
       var partialContents = this.fs.read(partialsPath);
 
       var ts = new Date().toLocaleString();
@@ -427,13 +354,13 @@ module.exports = AngVrBase.extend({
           callback(err, libArray);
         });
       }.bind(this),
-        function updateHtml(libArray, callback) {
+      function updateHtml(libArray, callback) {
         // add in some static libs that are defined elsewhere
         
         // I guess I need to add these manually
-          //vt note: the three.min.js, webvr-polyfill.js, and webvr-manager.js were
-          // originallg commented out in the release version.  I seem to have to
-          // restore them now
+        // note: the three.min.js, webvr-polyfill.js, and webvr-manager.js were
+        // originally commented out in the first release version.  I seem to have to
+        // restore them now
         libArray[libArray.length] = 'bower_components/threejs/build/three.min.js';
         libArray[libArray.length] = 'bower_components/webvr-polyfill/build/webvr-polyfill.js';        
         
@@ -441,18 +368,18 @@ module.exports = AngVrBase.extend({
         libArray[libArray.length] = 'bower_components/threejs/examples/js/effects/VREffect.js';
         
         libArray[libArray.length] = 'bower_components/webvr-boilerplate/build/webvr-manager.js';
-                        
+        
         var htmlPath = this.destinationPath('app/index.html');
         this.registerLibsHtml(htmlPath, libArray);
         
         callback(null);
       }.bind(this)      
     ],
-    function (err, result) {
-      if (err) throw err;
-      console.log(result);
-    }
-    );
+                    function (err, result) {
+                      if (err) throw err;
+                      console.log(result);
+                    }
+                   );
   },
   
   //  Now we need to replace any tags in the partial.  Since
@@ -461,13 +388,9 @@ module.exports = AngVrBase.extend({
   writing: function () {    
     Object.keys(this.artifacts.services).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/services/' +
-                                              //vt[ this.artifacts.services[key] ] + '.js');
-            this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase() + '.js' );
+                                              this.options.userNames.services[ this.artifacts.services[key] ].toLowerCase() + '.js' );
 
-      console.log('sub-angular.writing: templatePath=', templatePath);
-      console.log('sub-angular.writing: this.options.userNames.services.base=', this.options.userNames.services.base);
       var result = this.fs.read(templatePath);
-      console.log('sub-angular.writing: result=', result);
 
       this.fs.copyTpl(
         templatePath,
@@ -475,9 +398,7 @@ module.exports = AngVrBase.extend({
         {
           name: key,
           appName: this.options.appName,
-          //vt add
           baseService: this.options.userNames.services.base
-          //vt end
         }
       );
     }.bind(this));
@@ -485,19 +406,13 @@ module.exports = AngVrBase.extend({
     Object.keys(this.artifacts.ctrls).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/controllers/' +
                                               //[ this.artifacts.ctrls[key] ] + '.js');
-            [ this.options.userNames.ctrls[this.artifacts.ctrls[key]].toLowerCase() ] + '.js');
-            //[ this.options.userNames.ctrls['canvasKeys'] ] + '.js');
-      console.log('templateInsertion: templatePath=', templatePath);
-      console.log('templateInsertion: mainCtrl=', this.options.userNames.ctrls['main']);
-      console.log('templateInsertion: userNames=', this.options.userNames);
+                                              [ this.options.userNames.ctrls[this.artifacts.ctrls[key]].toLowerCase() ] + '.js');
       
       this.fs.copyTpl(
         templatePath,
         templatePath, {
           name: key,
           appName: this.options.appName,
-          //'main-service': this.artifacts.services.main,
-          //mainService: this.artifacts.services.main,
           mainService: this.options.userNames.services['main'],
         }
       );
@@ -505,20 +420,13 @@ module.exports = AngVrBase.extend({
 
     Object.keys(this.artifacts.directives).forEach( function (key, index, array) {
       var templatePath = this.destinationPath('app/scripts/directives/' +
-                                              //[ this.artifacts.directives[key].toLowerCase() ] + '.js');
-[ this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase() ] + '.js');
-      console.log('templateInsertion-directives: templatePath=', templatePath);
-      console.log('templateInsertion-directives: key=', key);
-      console.log('templateInsertion-directives: userNames=', this.options.userNames);
+                                              [ this.options.userNames.directives[this.artifacts.directives[key]].toLowerCase() ] + '.js');
       
       this.fs.copyTpl(
         templatePath,
         templatePath, {
           name: key,
           appName: this.options.appName,
-          //'main-service': this.artifacts.services.main,
-          // mainService: this.artifacts.services.main,
-          // mainService: this.artifacts.services.main,
           mainService: this.options.userNames.services['main'],
           baseService: this.options.userNames.services['base']
         }
@@ -532,44 +440,18 @@ module.exports = AngVrBase.extend({
     //common.copyUserLibDir(srcDir, destDir, this);
     this.copyUserLibDir(srcDir, destDir, this);
 
-    // copy standard files    
-//     this.log('sub-angular:writing: srcPath=', this.templatePath('main.html'));
-    //console.log('sub-angular:writing: destPath=', 'app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html');
-    //console.log('hi');
-// );
-    // console.log('sub-angular:writing: this.options=', this.options);
-    // console.log('sub-angular:writing: this=', this);
-    //a.charAt(0).toUpperCase() + a.slice(1);
-    // go from 'userMain' to 'UserMainCtrl' 
-    // var mainCtrl = this.options.userNames.ctrls.main + 'Ctrl';
-    // var mainCtrlClass = mainCtrl.charAt(0).toUpperCase() + mainCtrl.slice(1);
-    console.log('sub-angular.writing: this.mainCtrlClass=', this.mainCtrlClass);
-    //console.log('sub-angular.writing: mainCtrlClass=', mainCtrlClass);
-
     this.fs.copyTpl(
       this.templatePath('main.html'),
-      //this.destinationPath('app/views/main.html')
-      //vt add
-      //this.destinationPath('app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html'), {mainCtrlClass: mainCtrlClass}
       this.destinationPath('app/views/' + this.options.userNames.ctrls.main.toLowerCase() + '.html'), {mainCtrlClass: this.mainCtrlClass}
-      //vt end
     );
   },
 
-  //vt add
   // If the user has specified a non-default controller name (e.g. 'main')
   // then update the route to have the new controller.
   //TODO: this is very similar to '_markupFile'. Consider generailizing and combining
   // TODO: this is the generalized version.  Rename and have _markupFile call this.
   //updateRoute: function (filePath, insertPointRegex, insertStanza) {
   _insertIntoFile: function (filePath, insertPointRegex, insertStanza) {
-    // var routeStanza = [
-    //   ".when('/" + ctrlClass + "', {",
-    //   "templateUrl: 'views/" + ctrl + ".html'",
-    //   "controller: '" + ctrlClass + "',",
-    //   "controllerAs: '" + ctrl + "'",
-    //   "})",
-    // ].join('\n');
     
     var fileContents = this.fs.read(filePath);
     // loop over each line looking for our insert point
@@ -579,9 +461,7 @@ module.exports = AngVrBase.extend({
       var result = '';
 
       // look for closing bracket, and insert our tag before this
-      //if (/\.otherwise/.test(str)) {
       if (insertPointRegex.test(str)) {
-        //result +=  '<%= partial %>' + '\n';   
         result +=  insertStanza;   
       }
 
@@ -609,21 +489,10 @@ module.exports = AngVrBase.extend({
   updateRoute: function ()  {
     // we only need to add a route if it's the controller is not the default 'main' (becuase
     // the vainilla angular app will already have a 'main' route)
-    console.log('subAngular.updateRoute: this.mainCtrl=' + this.mainCtrl + ',this.defaultArtifactNames.mainCtrl=' +  this.defaultArtifactNames.mainCtrl);
-    //if (this.mainCtrl !== this.defaultArtifactNames.mainCtrl + 'Ctrl') {
     if (this.options.userNames.ctrls.main !== this.defaultArtifactNames.mainCtrl) {
-      console.log('subAngular.updateRoute: now adding a route');
       var result, fp, regex;
-      //var userMainCtrl = 'userMain';
-      //var userMainCtrl = 'MonadCtrl';
       
-      //fp = 'app/scripts/app.js';
       fp = this.destinationPath('app/scripts/app.js');
-
-      //setupUserOverrideEnvironment();
-      
-      // var ctrl = 'userMain';
-      // var ctrlClass = 'UserMainCtrl';
 
       var routeStanza = [
         ".when('/" + this.options.userNames.ctrls.main + "', {",
@@ -639,7 +508,6 @@ module.exports = AngVrBase.extend({
     };
   },
   
-  //vt end
   install: function () {
     //this.installDependencies();
     //this.bowerInstall(packages[this.format], ['--save-dev']);
@@ -657,9 +525,9 @@ module.exports = AngVrBase.extend({
     //   this.bowerInstall(['three.js'], { 'save': true });
     // };
   },
-    
- end: function () {
-   this.log('sub-angular: all done');
- }
+  
+  end: function () {
+    this.log('sub-angular: all done');
+  }
 });
 

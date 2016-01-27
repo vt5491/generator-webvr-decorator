@@ -9,10 +9,6 @@
           // prevent browser from handling as well
           event.preventDefault();
 
-          //vt add
-          //console.log('vt: canvasKeys: event.keyCode=' + event.keyCode);
-          //vt end
-
           switch( event.keyCode) {
             case 'S'.charCodeAt(0):
               <%= mainService %>.camera.translateZ(<%= baseService %>.CAMERA_MOVE_DELTA); 
