@@ -10,7 +10,7 @@ WebVR and three.js are powerful platforms.  When running together, these librari
 
 Unfortunately, both WebVR and three.js involve large amounts of tedious boilerplate.  If you've never created a WebVR app before, it may take you several days to figure what needs to be done as documentation is sparse.  Even experienced WebVR application developers may find it takes several hours to set up a basic application, particularly when you have to integrate it into a non-trivial platform such as Angular.
 
-webvr-decorator allows you to inject the necessary code into an existing application, in the form of an independent MVC *subapp*, that allows you to display a [basic VR enabled scene of a rotating cube](http://vt5491.github.io/#/).  And by using a generator, you get a simple but useful skeleton architecture utilizing standard WebVR and THREE.js best practices, providing a solid foundation on which you can build your own VR capability, and integrate into your existing application.
+*webvr-decorator* allows you to inject the necessary code into an existing application, in the form of an independent MVC *subapp*, that allows you to display a [basic VR enabled scene of a rotating cube](http://vt5491.github.io/#/).  And by using a generator, you get a simple but useful skeleton architecture utilizing standard WebVR and THREE.js best practices, providing a solid foundation on which you can build your own VR capability, and integrate into an existing application.
 
 ## Getting Started
 
@@ -58,9 +58,9 @@ elect)
  ◯ canvaskeys
 
 ```
-If you are *decorating* a vanilla angular app, and you basically want a stand-alone VR app, then it's probably easiest to just accept the defaults.
+If you are *decorating* a vanilla angular app, and you basically want a stand-alone VR app, then it's probably easiest to just press **Enter** and accept the defaults.
 
-However, for the rest of this demonstration we will assume you want to add the WebVR capability as a separate "MVC subsystem" on top of an angular app that already has other functionality (in the 'main' controller and service, for example).  So in this case we want to rename the following:
+However, for the rest of this demonstration we will assume you want to add the WebVR capability as a separate "MVC subsystem" on top of an angular app that has pre-existing functionality (in the 'main' controller/service, for example).  So in this case we want to rename the following:
 
 - main controller --> 'myVRSubApp'
 - main service    --> 'myVRSubApp'
@@ -69,7 +69,7 @@ However, for the rest of this demonstration we will assume you want to add the W
 
 We will use the default name for the keyboard handling directive (canvasKeys.js)
 
-Note: Enter names as camelCase.  Angular has very picky requirements regarding names, as it uses extensive "name-mangling" conventions to identify resources.  
+Note: Enter names as camelCase.  Angular has very prickly requirements regarding names, as it uses extensive "name-mangling" conventions to identify resources.  
 
 So select the artifacts by using the arrow-keys to go down the list and press the *space bar* on the items you wish to select:
 
@@ -150,7 +150,8 @@ The installer is done once you see these messages:
 webvr-decorator: all done
 sub-angular: all done
 ```
-For some reason, the installer doesn't always exit at the end.  You can hit Ctrl-C after seeing these messages if it appears your terminal is "hung".
+For some reason, the installer doesn't always exit at the end.  You can hit Ctrl-C after seeing these messages if it appears your terminal is "hung".  It also possible to safely hit the **ENTER** key if you think the installer is not responding.
+
 After the required libraries are installed, start your angular app like always:
 ```bash
 grunt serve
@@ -172,12 +173,12 @@ q: rotate cube counter-clockwise
 ```
 ## Caveats:
 
-- It is recommended you backup the **app** directory structure of your application, or simply use a *vanilla* angular install (base yeoman angular template app with no modifications)
-before *decorating* it, particularly if you are using the default names.  While this is less important if you're doing a "separate MVC" install (using different names), there are still some files common files, such as index.html, that of necessity need to be updated.  While I have tested the changes on several of my own apps, and yeoman is fairly good about preventing an installer from trashing your app, it's just common sense to do until this installer gets more "real-world" usage, or at least until you gain more personal experience with it. 
+- It is recommended you backup the **/app** directory of your application, or simply use a *vanilla* angular install (base yeoman angular template app with no modifications)
+before *decorating* it, particularly if you are using the default names.  While this is less important if you're doing a "separate MVC" install (using different names), there are still some common files, such as index.html, that of necessity need to be updated.  While I have tested the changes on several of my own apps, and yeoman is fairly good about preventing an installer from trashing your app, it's just common sense to do until this installer gets more "real-world" usage, or at least until you gain more personal experience with it. 
 
-- I primarily tested on a laptop.  It runs on mobile, but there is a problem where the *VR icon* rapidly shrinking that makes it hard to enter VR Mode.
+- I primarily tested on a laptop.  It runs on mobile, but there is a problem where the *VR icon* rapidly shrinks, making it hard to enter VR Mode.
 
-- The arrow keys do not work when selecting options on Microsoft Windows (either the git bash shell, or command prompt).  This appears [to be a known problem with the Windows version Yeoman](https://github.com/strongloop/generator-loopback/issues/69). 
+- The arrow keys do not work when selecting options on Microsoft Windows (either the git bash shell, or command prompt).  Thus, you'll be forced to just accept the defaults if running under Windows.  This appears [to be a known problem with the Windows version of Yeoman](https://github.com/strongloop/generator-loopback/issues/69). 
 
 ## Screen-Shots
 The following were run on [Mozilla nightly build](https://nightly.mozilla.org/)
