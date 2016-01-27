@@ -145,6 +145,12 @@ bower threejs#*               progress Receiving objects:  42% (812/1917), 29.28
 bower threejs#*               progress Receiving objects:  43% (835/1917), 32.31 MiB | 2.00 MiB/s
 bower threejs#*               progress Receiving objects:  44% (844/1917), 34.01 MiB | 2.14 MiB/s
 ```
+The installer is done once you see these messages:
+```bash
+webvr-decorator: all done
+sub-angular: all done
+```
+For some reason, the installer doesn't always exit at the end.  You can hit Ctrl-C after seeing these messages if it appears your terminal is "hung".
 After the required libraries are installed, start your angular app like always:
 ```bash
 grunt serve
@@ -164,12 +170,14 @@ a: move camera left
 e: rotate cube clockwise
 q: rotate cube counter-clockwise
 ```
-## Disclaimer:
+## Caveats:
 
 - It is recommended you backup the **app** directory structure of your application, or simply use a *vanilla* angular install (base yeoman angular template app with no modifications)
 before *decorating* it, particularly if you are using the default names.  While this is less important if you're doing a "separate MVC" install (using different names), there are still some files common files, such as index.html, that of necessity need to be updated.  While I have tested the changes on several of my own apps, and yeoman is fairly good about preventing an installer from trashing your app, it's just common sense to do until this installer gets more "real-world" usage, or at least until you gain more personal experience with it. 
 
 - I primarily tested on a laptop.  It runs on mobile, but there is a problem where the *VR icon* rapidly shrinking that makes it hard to enter VR Mode.
+
+- The arrow keys do not work when selecting options on Microsoft Windows (either the git bash shell, or command prompt).  This appears [to be a known problem with the Windows version Yeoman](https://github.com/strongloop/generator-loopback/issues/69). 
 
 ## Screen-Shots
 The following were run on [Mozilla nightly build](https://nightly.mozilla.org/)
